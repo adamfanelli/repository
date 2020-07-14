@@ -18,7 +18,7 @@ namespace OdeToFood.Web.Controllers
 
         public ActionResult Index()
         {
-            var model = db.GetAll();
+            var model = db;
             return View(model);
         }
 

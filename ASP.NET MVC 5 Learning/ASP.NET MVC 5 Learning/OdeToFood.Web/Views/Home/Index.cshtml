@@ -1,33 +1,42 @@
-﻿@model IEnumerable<OdeToFood.Data.Models.Restaurant>
+﻿@model OdeToFood.Data.Services.InMemoryRestaurantData
 @{
     ViewBag.Title = "Home Page";
 }
 
 
-    <div class="jumbotron">
-        <h1>ASP.NET</h1>
-        <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
-        <div>
-            <h2>There are @Model.Count() restaurants in the database.</h2>
-        </div>
+<div class="jumbotron">
+    <h1>ASP.NET</h1>
+    <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
 
-        <table class="table table-bordered table-responsive table-hover">
-            <tr>
-                @foreach (OdeToFood.Data.Models.Restaurant restaurant in Model)
+    <table class="table table-striped table-bordered">
+        <caption>List of restaurants in the database</caption>
+        <tr>
+            <th colspan="@Model.numColumns" class="bg-primary">There are @Model.GetAll().Count() restaurants in the database.</th>
+        </tr>
+
+        @for (int i = 0; i < Math.Ceiling((Model.GetAll().Count() / (double)@Model.numColumns)); i++)
+        {
+        <tr>
+            @for (int j = 0; j <= @Model.numColumns - 1; j++)
+            {
+                if ((i * @Model.numColumns) + j < Model.GetAll().Count())
                 {
-                <th>
-                    <h4>@restaurant.Name</h4>
-                    <h4>Id: @restaurant.Id</h4>
-                </th>
+                    <td class="table-responsive table-hover">@Model.GetAll().ElementAt((i * @Model.numColumns) + j).Name</td>
                 }
-            </tr>
-        </table>
+                else
+                {
+                    <td class="table-responsive table-hover"></td>
+                }
+            }
+        </tr>
+        }
+    </table>
 
-        <p><a href="https://asp.net" class="btn btn-primary btn-lg">Learn more &raquo;</a></p>
-    </div>
+    <p><a href="https://asp.net" class="btn btn-primary btn-lg">Learn more &raquo;</a></p>
+</div>
 
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-4"; >
         <h2>Getting started</h2>
         <p>
             ASP.NET MVC gives you a powerful, patterns-based way to build dynamic websites that
