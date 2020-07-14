@@ -15,6 +15,9 @@ namespace OdeToFood.Data.Services
             {
                 new Restaurant { Id = 1, Name = "Belagio's" },
                 new Restaurant { Id = 1, Name = "Red Robin" },
+                new Restaurant { Id = 2, Name = "Buscuit's Cafe" },
+                new Restaurant { Id = 1, Name = "Belagio's" },
+                new Restaurant { Id = 1, Name = "Red Robin" },
                 new Restaurant { Id = 2, Name = "Buscuit's Cafe" }
             };
         }

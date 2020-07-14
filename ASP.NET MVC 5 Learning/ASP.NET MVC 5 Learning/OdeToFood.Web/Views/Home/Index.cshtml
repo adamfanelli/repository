@@ -8,6 +8,14 @@
     <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
     <div>
         There are @Model.Count() restaurants in the database.
+
+        @foreach (OdeToFood.Data.Models.Restaurant restaurant in Model)
+        {
+        <p>
+            Id: @restaurant.Id
+            Name: @restaurant.Name
+        </p>
+        }
     </div>
     <p><a href="https://asp.net" class="btn btn-primary btn-lg">Learn more &raquo;</a></p>
 </div>
