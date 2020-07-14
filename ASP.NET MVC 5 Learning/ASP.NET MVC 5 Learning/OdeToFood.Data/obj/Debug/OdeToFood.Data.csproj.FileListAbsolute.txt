@@ -1,0 +1,6 @@
+D:\dev\repository\ASP.NET MVC 5 Learning\ASP.NET MVC 5 Learning\OdeToFood.Data\bin\Debug\OdeToFood.Data.dll
+D:\dev\repository\ASP.NET MVC 5 Learning\ASP.NET MVC 5 Learning\OdeToFood.Data\bin\Debug\OdeToFood.Data.pdb
+D:\dev\repository\ASP.NET MVC 5 Learning\ASP.NET MVC 5 Learning\OdeToFood.Data\obj\Debug\OdeToFood.Data.csprojAssemblyReference.cache
+D:\dev\repository\ASP.NET MVC 5 Learning\ASP.NET MVC 5 Learning\OdeToFood.Data\obj\Debug\OdeToFood.Data.csproj.CoreCompileInputs.cache
+D:\dev\repository\ASP.NET MVC 5 Learning\ASP.NET MVC 5 Learning\OdeToFood.Data\obj\Debug\OdeToFood.Data.dll
+D:\dev\repository\ASP.NET MVC 5 Learning\ASP.NET MVC 5 Learning\OdeToFood.Data\obj\Debug\OdeToFood.Data.pdb
