@@ -5,12 +5,12 @@
 
 <h2>Articles</h2>
 
-<table class="table table-striped">
+<table class="table table-hover table-striped">
     @foreach (TimelineProject.Data.Models.Article article in Model)
     {
     <tr>
         <td>@article.Title</td>
-        <td>@article.Body</td>
+        <td>@article.Description</td>
     </tr>
     }
 </table>

@@ -13,8 +13,8 @@ namespace TimelineProject.Data.Services
         {
             articles = new List<Article>()
             {
-                new Article { Title = "First Article", Body = "Body of the first article"},
-                new Article { Title = "Second Article", Body = "Body of the second article"}
+                new Article { Title = "First Article", Description = "Description of the first article"},
+                new Article { Title = "Second Article", Description = "Description of the second article"}
             };
         }
 

@@ -1,11 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "poPMa+IieedmyU5BJcpGo6LrBP3pFT5vjiCRGrYNrQRVvIxJWV0+y8smZx1OcWxjRpaFO2nWtxbfPx96N3nYTg==",
+  "dgSpecHash": "w9duRDARZkBhXhFNYjmXFoHUp2POmAE80Fijbp9vchaI1VQ3MdEm8gcY6BR4CR///q5etFV666Jo0Os1joiYVA==",
   "success": true,
-  "projectFilePath": "D:\\dev\\repository\\ASP.NET MVC 5 Learning\\ASP.NET MVC 5 Learning\\TimelineProject.Data\\TimelineProject.Data.csproj",
+  "projectFilePath": "C:\\Repositories\\repository\\ASP.NET MVC 5 Learning\\ASP.NET MVC 5 Learning\\TimelineProject.Data\\TimelineProject.Data.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\afane\\.nuget\\packages\\microsoft.netcore.platforms\\1.1.0\\microsoft.netcore.platforms.1.1.0.nupkg.sha512",
-    "C:\\Users\\afane\\.nuget\\packages\\netstandard.library\\2.0.3\\netstandard.library.2.0.3.nupkg.sha512"
+    "C:\\Users\\afanelli\\.nuget\\packages\\microsoft.netcore.platforms\\1.1.0\\microsoft.netcore.platforms.1.1.0.nupkg.sha512",
+    "C:\\Users\\afanelli\\.nuget\\packages\\netstandard.library\\2.0.3\\netstandard.library.2.0.3.nupkg.sha512"
   ],
   "logs": []
 }

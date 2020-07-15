@@ -7,3 +7,12 @@ D:\dev\repository\ASP.NET MVC 5 Learning\ASP.NET MVC 5 Learning\TimelineProject.
 D:\dev\repository\ASP.NET MVC 5 Learning\ASP.NET MVC 5 Learning\TimelineProject.Data\obj\Debug\netstandard2.0\TimelineProject.Data.csproj.CoreCompileInputs.cache
 D:\dev\repository\ASP.NET MVC 5 Learning\ASP.NET MVC 5 Learning\TimelineProject.Data\obj\Debug\netstandard2.0\TimelineProject.Data.dll
 D:\dev\repository\ASP.NET MVC 5 Learning\ASP.NET MVC 5 Learning\TimelineProject.Data\obj\Debug\netstandard2.0\TimelineProject.Data.pdb
+C:\Repositories\repository\ASP.NET MVC 5 Learning\ASP.NET MVC 5 Learning\TimelineProject.Data\bin\Debug\netstandard2.0\TimelineProject.Data.deps.json
+C:\Repositories\repository\ASP.NET MVC 5 Learning\ASP.NET MVC 5 Learning\TimelineProject.Data\bin\Debug\netstandard2.0\TimelineProject.Data.dll
+C:\Repositories\repository\ASP.NET MVC 5 Learning\ASP.NET MVC 5 Learning\TimelineProject.Data\bin\Debug\netstandard2.0\TimelineProject.Data.pdb
+C:\Repositories\repository\ASP.NET MVC 5 Learning\ASP.NET MVC 5 Learning\TimelineProject.Data\obj\Debug\netstandard2.0\TimelineProject.Data.csprojAssemblyReference.cache
+C:\Repositories\repository\ASP.NET MVC 5 Learning\ASP.NET MVC 5 Learning\TimelineProject.Data\obj\Debug\netstandard2.0\TimelineProject.Data.AssemblyInfoInputs.cache
+C:\Repositories\repository\ASP.NET MVC 5 Learning\ASP.NET MVC 5 Learning\TimelineProject.Data\obj\Debug\netstandard2.0\TimelineProject.Data.AssemblyInfo.cs
+C:\Repositories\repository\ASP.NET MVC 5 Learning\ASP.NET MVC 5 Learning\TimelineProject.Data\obj\Debug\netstandard2.0\TimelineProject.Data.csproj.CoreCompileInputs.cache
+C:\Repositories\repository\ASP.NET MVC 5 Learning\ASP.NET MVC 5 Learning\TimelineProject.Data\obj\Debug\netstandard2.0\TimelineProject.Data.dll
+C:\Repositories\repository\ASP.NET MVC 5 Learning\ASP.NET MVC 5 Learning\TimelineProject.Data\obj\Debug\netstandard2.0\TimelineProject.Data.pdb

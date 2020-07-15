@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "D:\\dev\\repository\\ASP.NET MVC 5 Learning\\ASP.NET MVC 5 Learning\\TimelineProject.Data\\TimelineProject.Data.csproj": {}
+    "C:\\Repositories\\repository\\ASP.NET MVC 5 Learning\\ASP.NET MVC 5 Learning\\TimelineProject.Data\\TimelineProject.Data.csproj": {}
   },
   "projects": {
-    "D:\\dev\\repository\\ASP.NET MVC 5 Learning\\ASP.NET MVC 5 Learning\\TimelineProject.Data\\TimelineProject.Data.csproj": {
+    "C:\\Repositories\\repository\\ASP.NET MVC 5 Learning\\ASP.NET MVC 5 Learning\\TimelineProject.Data\\TimelineProject.Data.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\dev\\repository\\ASP.NET MVC 5 Learning\\ASP.NET MVC 5 Learning\\TimelineProject.Data\\TimelineProject.Data.csproj",
+        "projectUniqueName": "C:\\Repositories\\repository\\ASP.NET MVC 5 Learning\\ASP.NET MVC 5 Learning\\TimelineProject.Data\\TimelineProject.Data.csproj",
         "projectName": "TimelineProject.Data",
-        "projectPath": "D:\\dev\\repository\\ASP.NET MVC 5 Learning\\ASP.NET MVC 5 Learning\\TimelineProject.Data\\TimelineProject.Data.csproj",
-        "packagesPath": "C:\\Users\\afane\\.nuget\\packages\\",
-        "outputPath": "D:\\dev\\repository\\ASP.NET MVC 5 Learning\\ASP.NET MVC 5 Learning\\TimelineProject.Data\\obj\\",
+        "projectPath": "C:\\Repositories\\repository\\ASP.NET MVC 5 Learning\\ASP.NET MVC 5 Learning\\TimelineProject.Data\\TimelineProject.Data.csproj",
+        "packagesPath": "C:\\Users\\afanelli\\.nuget\\packages\\",
+        "outputPath": "C:\\Repositories\\repository\\ASP.NET MVC 5 Learning\\ASP.NET MVC 5 Learning\\TimelineProject.Data\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\afane\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\afanelli\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
