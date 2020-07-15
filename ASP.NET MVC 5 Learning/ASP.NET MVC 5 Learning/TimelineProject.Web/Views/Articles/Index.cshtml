@@ -5,12 +5,15 @@
 
 <h2>Articles</h2>
 
-<table class="table table-hover table-striped">
+<table id="articleTable" class="table dataTable table-hover table-striped" style="width:100%">
     @foreach (TimelineProject.Data.Models.Article article in Model)
     {
     <tr>
-        <td>@article.Title</td>
-        <td>@article.Description</td>
+        <td width="20%">@article.Title</td>
+        <td width="60%">@article.Description</td>
+        <td width="10%">
+            <a>Open</a>
+       </td>
     </tr>
     }
 </table>

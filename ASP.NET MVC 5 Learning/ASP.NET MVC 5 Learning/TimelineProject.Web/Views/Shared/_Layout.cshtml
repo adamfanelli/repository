@@ -30,6 +30,7 @@
                             <span class="caret"></span>
                         </a>
                         <ul class="dropdown-menu" role="menu">
+                            <li style="margin-bottom: 8px; margin-top: 8px;">@Html.ActionLink("All Articles", "Index", "Articles")</listyle="padding:>
                             <li>@Html.ActionLink("Characters", "Index", "Articles")</li>
                             <li>@Html.ActionLink("World", "Index", "Articles")</li>
                             <li>@Html.ActionLink("Events", "Index", "Articles")</li>
@@ -47,7 +48,7 @@
         @RenderBody()
         <hr />
         <footer>
-            <p>&copy; @DateTime.Now.Year - Timeline Project</p>
+            <p>Timeline Project - v1.0.0</p>
         </footer>
     </div>
 
@@ -56,3 +57,5 @@
     @RenderSection("scripts", required: false)
 </body>
 </html>
+
+
