@@ -1,0 +1,9 @@
+D:\dev\repository\ASP.NET MVC 5 Learning\ASP.NET MVC 5 Learning\TimelineProject.Data\bin\Debug\netstandard2.0\TimelineProject.Data.deps.json
+D:\dev\repository\ASP.NET MVC 5 Learning\ASP.NET MVC 5 Learning\TimelineProject.Data\bin\Debug\netstandard2.0\TimelineProject.Data.dll
+D:\dev\repository\ASP.NET MVC 5 Learning\ASP.NET MVC 5 Learning\TimelineProject.Data\bin\Debug\netstandard2.0\TimelineProject.Data.pdb
+D:\dev\repository\ASP.NET MVC 5 Learning\ASP.NET MVC 5 Learning\TimelineProject.Data\obj\Debug\netstandard2.0\TimelineProject.Data.csprojAssemblyReference.cache
+D:\dev\repository\ASP.NET MVC 5 Learning\ASP.NET MVC 5 Learning\TimelineProject.Data\obj\Debug\netstandard2.0\TimelineProject.Data.AssemblyInfoInputs.cache
+D:\dev\repository\ASP.NET MVC 5 Learning\ASP.NET MVC 5 Learning\TimelineProject.Data\obj\Debug\netstandard2.0\TimelineProject.Data.AssemblyInfo.cs
+D:\dev\repository\ASP.NET MVC 5 Learning\ASP.NET MVC 5 Learning\TimelineProject.Data\obj\Debug\netstandard2.0\TimelineProject.Data.csproj.CoreCompileInputs.cache
+D:\dev\repository\ASP.NET MVC 5 Learning\ASP.NET MVC 5 Learning\TimelineProject.Data\obj\Debug\netstandard2.0\TimelineProject.Data.dll
+D:\dev\repository\ASP.NET MVC 5 Learning\ASP.NET MVC 5 Learning\TimelineProject.Data\obj\Debug\netstandard2.0\TimelineProject.Data.pdb

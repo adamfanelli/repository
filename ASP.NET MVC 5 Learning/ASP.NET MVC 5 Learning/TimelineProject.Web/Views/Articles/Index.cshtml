@@ -1,0 +1,16 @@
+﻿@model IEnumerable<TimelineProject.Data.Models.Article>
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Articles</h2>
+
+<table class="table table-striped">
+    @foreach (TimelineProject.Data.Models.Article article in Model)
+    {
+    <tr>
+        <td>@article.Title</td>
+        <td>@article.Body</td>
+    </tr>
+    }
+</table>
