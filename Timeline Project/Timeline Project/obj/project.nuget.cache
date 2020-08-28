@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "dgSpecHash": "tg6mgwmF4iPIvl48SkxgZCo2xrZy9prmDjLN6IzEoVB+g4WFMn7GrxALzA0V9OThez50AEUjec+HXKJq7MqHig==",
+  "success": true,
+  "projectFilePath": "D:\\dev\\repository\\Timeline Project\\Timeline Project\\Timeline Project.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\afane\\.nuget\\packages\\csfml\\2.5.0\\csfml.2.5.0.nupkg.sha512",
+    "C:\\Users\\afane\\.nuget\\packages\\sfml.audio\\2.5.0\\sfml.audio.2.5.0.nupkg.sha512",
+    "C:\\Users\\afane\\.nuget\\packages\\sfml.graphics\\2.5.0\\sfml.graphics.2.5.0.nupkg.sha512",
+    "C:\\Users\\afane\\.nuget\\packages\\sfml.net\\2.5.0\\sfml.net.2.5.0.nupkg.sha512",
+    "C:\\Users\\afane\\.nuget\\packages\\sfml.system\\2.5.0\\sfml.system.2.5.0.nupkg.sha512",
+    "C:\\Users\\afane\\.nuget\\packages\\sfml.window\\2.5.0\\sfml.window.2.5.0.nupkg.sha512"
+  ],
+  "logs": []
+}

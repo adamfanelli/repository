@@ -1,0 +1,36 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v3.1",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v3.1": {
+      "Timeline Project/1.0.0": {
+        "dependencies": {
+          "TimelineLib": "1.0.0"
+        },
+        "runtime": {
+          "Timeline Project.dll": {}
+        }
+      },
+      "TimelineLib/1.0.0": {
+        "runtime": {
+          "TimelineLib.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Timeline Project/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "TimelineLib/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
