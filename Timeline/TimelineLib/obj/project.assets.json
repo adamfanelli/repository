@@ -450,11 +450,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\dev\\repository\\Timeline Project SFML\\Empty Project\\Timeline Project SFML.csproj",
-      "projectName": "Timeline Project SFML",
-      "projectPath": "D:\\dev\\repository\\Timeline Project SFML\\Empty Project\\Timeline Project SFML.csproj",
+      "projectUniqueName": "D:\\dev\\repository\\Timeline\\TimelineLib\\TimelineLib.csproj",
+      "projectName": "TimelineLib",
+      "projectPath": "D:\\dev\\repository\\Timeline\\TimelineLib\\TimelineLib.csproj",
       "packagesPath": "C:\\Users\\afane\\.nuget\\packages\\",
-      "outputPath": "D:\\dev\\repository\\Timeline Project SFML\\Empty Project\\obj\\",
+      "outputPath": "D:\\dev\\repository\\Timeline\\TimelineLib\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"

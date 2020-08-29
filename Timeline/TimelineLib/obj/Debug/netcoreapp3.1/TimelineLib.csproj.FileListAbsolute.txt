@@ -1,0 +1,9 @@
+D:\dev\repository\Timeline\TimelineLib\bin\Debug\netcoreapp3.1\TimelineLib.deps.json
+D:\dev\repository\Timeline\TimelineLib\bin\Debug\netcoreapp3.1\TimelineLib.dll
+D:\dev\repository\Timeline\TimelineLib\bin\Debug\netcoreapp3.1\TimelineLib.pdb
+D:\dev\repository\Timeline\TimelineLib\obj\Debug\netcoreapp3.1\TimelineLib.csprojAssemblyReference.cache
+D:\dev\repository\Timeline\TimelineLib\obj\Debug\netcoreapp3.1\TimelineLib.AssemblyInfoInputs.cache
+D:\dev\repository\Timeline\TimelineLib\obj\Debug\netcoreapp3.1\TimelineLib.AssemblyInfo.cs
+D:\dev\repository\Timeline\TimelineLib\obj\Debug\netcoreapp3.1\TimelineLib.dll
+D:\dev\repository\Timeline\TimelineLib\obj\Debug\netcoreapp3.1\TimelineLib.pdb
+D:\dev\repository\Timeline\TimelineLib\obj\Debug\netcoreapp3.1\TimelineLib.csproj.CoreCompileInputs.cache
