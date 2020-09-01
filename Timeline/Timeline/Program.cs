@@ -21,7 +21,14 @@ namespace Timeline
             model = new TimelineModel();
             window = new RenderWindow(new VideoMode(model.WindowWidth, model.WindowHeight), model.WindowTitle);
 
-            //Controls
+            model.OffsetX = window.Size.X / 2;
+
+            int c = 0;
+
+            //ADD TEST EVENT
+            model.AddEvent(new TimelineEvent("Test event", 2));
+            model.AddEvent(new TimelineEvent("Test event 2", -5));
+            model.AddEvent(new TimelineEvent("Test event 3", 6.75f));
 
 
             while (window.IsOpen)
@@ -35,11 +42,22 @@ namespace Timeline
 
                 window.Clear(Color.White);
 
+                //PAN SCREEN
+                if (KeyPressed_W) model.OffsetY += model.PanSpeed;
+                if (KeyPressed_A) model.OffsetX += model.PanSpeed;
+                if (KeyPressed_S) model.OffsetY -= model.PanSpeed;
+                if (KeyPressed_D) model.OffsetX -= model.PanSpeed;
+
                 //DRAW LINE
                 model.DrawLine(window);
 
                 //DRAW MARKERS
                 model.DrawMarkers(window);
+
+                //DRAW EVENTS
+                model.DrawEvents(window);
+
+                model.DrawNumber(c++, "Refreshes: ", window);
 
 
                 window.Display();
@@ -58,35 +76,19 @@ namespace Timeline
             switch (e.Code)
             {
                 case Keyboard.Key.W:
-                    if (!KeyPressed_W)
-                    {
-                        model.OffsetY -= model.PanSpeed;
-                        KeyPressed_W = true;
-                    }
+                    if (!KeyPressed_W) KeyPressed_W = true;
                     break;
 
                 case Keyboard.Key.A:
-                    if (!KeyPressed_A)
-                    {
-                        model.OffsetX -= model.PanSpeed;
-                        KeyPressed_A = true;
-                    }
+                    if (!KeyPressed_A) KeyPressed_A = true;
                     break;
 
                 case Keyboard.Key.S:
-                    if (!KeyPressed_S)
-                    {
-                        model.OffsetY += model.PanSpeed;
-                        KeyPressed_S = true;
-                    }
+                    if (!KeyPressed_S) KeyPressed_S = true;
                     break;
 
                 case Keyboard.Key.D:
-                    if (!KeyPressed_D)
-                    {
-                        model.OffsetX += model.PanSpeed;
-                        KeyPressed_D = true;
-                    }
+                    if (!KeyPressed_D) KeyPressed_D = true;
                     break;
             }
         }

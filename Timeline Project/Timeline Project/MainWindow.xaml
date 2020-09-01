@@ -3,27 +3,18 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:TimelineProject="clr-namespace:Timeline_Project"
         xmlns:local="clr-namespace:Timeline_Project"
         mc:Ignorable="d"
         Loaded="Window_Loaded"
-        SizeChanged="Window_SizeChanged"
-        Title="Timeline Project" 
-        Height="{Binding WindowHeight}" 
-        Width="{Binding WindowWidth}">
-    
-
-    <Window.DataContext>
-        <local:ViewModel />
-    </Window.DataContext>
-
-    <Grid Name="grid">
+        Title="MainWindow" Height="800" Width="1200">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="20"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="20"/>
+            <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
 
-        <!-- Menu Bar -->
         <DockPanel Grid.Row="0"  Width="Auto">
             <Menu DockPanel.Dock="Top" Background="White">
                 <MenuItem Header="File">
@@ -47,78 +38,13 @@
             </Menu>
         </DockPanel>
 
+        <WindowsFormsHost Grid.Row="1">
+            <WindowsFormsHost.Child>
+                <TimelineProject:SfmlDrawingSurface x:Name="DrawSurface" SizeChanged="DrawSurface_SizeChanged"/>
+            </WindowsFormsHost.Child>
+        </WindowsFormsHost>
 
-        <!--Main Line-->
-        <!--<Line Grid.Row="1" X1="{Binding Path=MainLineX1}" Y1="{Binding Path=MainLineY1}" X2="{Binding Path=MainLineX2}" Y2="{Binding Path=MainLineY2}" Width="Auto" Stroke="Black" StrokeThickness="2"/>-->
-        <!--<Line Name="MainLine" Grid.Row="1" />-->
-    
-        <!--Top Right Grid-->
-        <!--<Grid Grid.Row="1" Width="Auto" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0, 0, 20, 0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="40"/>
-                <ColumnDefinition Width="20"/>
-            </Grid.ColumnDefinitions>
-
-            --><!--Event Counter--><!--
-            <TextBlock
-                Grid.Column="0"
-                Text="Events:"
-                HorizontalAlignment="Center" 
-                VerticalAlignment="Center"/>
-            <TextBlock 
-                Grid.Column="1"
-                Width="Auto" 
-                Height="Auto" 
-                Text="{Binding NumberOfEvents}"
-                FontWeight="Bold"
-                FontSize="10pt"
-                HorizontalAlignment="Center" 
-                VerticalAlignment="Center"/>
-        </Grid>-->
-        
-        <!-- Test Button -->
-        <!--<Button 
-            HorizontalAlignment="Right" 
-            VerticalAlignment="Top"
-            Margin="0, 30, 20, 0"
-            Grid.Row="1" 
-            Width="65" 
-            Height="25" 
-            Command="{Binding AddEventCommand}"
-            Content="Add Event"/>
-        
-        --><!-- List Of Events - TESTING --><!--
-        <ItemsControl Grid.Row="1" ItemsSource="{Binding Path=ListOfEvents}">
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="170"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-
-                        <TextBlock
-                            Text="{Binding EventName}"
-                            FontWeight="Bold"
-                            FontSize="10pt"/>
-
-                        <TextBlock
-                            Grid.Column="1"
-                            Text="{Binding StartYear}"
-                            FontWeight="Bold"
-                            FontSize="10pt"/>
-                    </Grid>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>-->
-        
-        <!-- Markers -->
-        <!--<ItemsControl Grid.Row="1" ItemsSource="{Binding Path=ListOfEvents}">
-            
-        </ItemsControl>-->
-        
-        
-        <!-- Footer -->
-        <TextBlock Grid.Row="2" Padding="7, 0, 0, 0" Text="Timeline Project - v0.0.1"></TextBlock>
+        <Button Grid.Row="2" Click="Button_Click" Content="Random Color" Width="85" HorizontalAlignment="Left" Margin="4" />
+        <Button Grid.Row="2" Click="Button_Click_New_Event" Content="New Event" Width="70" HorizontalAlignment="Left" Margin="94, 4, 4, 4" />
     </Grid>
 </Window>
