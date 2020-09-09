@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Text;
 
@@ -45,7 +46,9 @@ namespace TimelineLib
             OffsetX = 0;
             OffsetY = 0;
 
-            font = new Font("D:\\dev\\repository\\Timeline\\TimelineLib\\Fonts\\Hack-Regular.ttf");
+            string dir = Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName;
+
+            font = new Font(dir + "\\Fonts\\Hack-Regular.ttf");
             EventTextCharacterSize = 20;
             EventBackgroundColor = new Color(230, 230, 230);
 
