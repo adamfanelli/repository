@@ -4,12 +4,14 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
+//using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -25,6 +27,7 @@ using Color = SFML.Graphics.Color;
 using Keyboard = SFML.Window.Keyboard;
 using KeyEventArgs = SFML.Window.KeyEventArgs;
 using Window = SFML.Window.Window;
+//using Timer = System.Timers.Timer;
 
 namespace Timeline_Project
 {
@@ -35,8 +38,8 @@ namespace Timeline_Project
     {
         private RenderWindow _renderWindow;
         private TimelineModel model;
-        private System.Timers.Timer _timer;
-        Context context;
+
+        public System.Timers.Timer timer;
 
         public bool KeyPressed_W;
         public bool KeyPressed_A;
@@ -44,9 +47,11 @@ namespace Timeline_Project
         public bool KeyPressed_D;
 
         public int c = 8;
-        public int tCount = 0;
+        public static int tCount = 0;
 
-        public const float FPS = 60.0f;
+        public int o;
+
+        public const int FPS = 12;
 
         public MainWindow()
         {
@@ -78,6 +83,64 @@ namespace Timeline_Project
             this._renderWindow.SetActive(true);
         }
 
+
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            Thread backgroundThread = new Thread(BeginGUIMethod);
+            backgroundThread.Start();
+        }
+
+        public void BeginGUIMethod()
+        {
+            _renderWindow.SetFramerateLimit(FPS);
+
+            while (_renderWindow.IsOpen)
+            {
+                System.Windows.Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(() =>
+                {
+                    if(_renderWindow.IsOpen) UpdateWindow();
+                }
+                ));
+            }
+        }
+
+        private void UpdateWindow()
+        {
+            //Process Events
+            this._renderWindow.DispatchEvents();
+
+            //Clear Screen
+            this._renderWindow.Clear(model.BackgroundColor);
+
+            //Draw Screen
+            this.DrawScreen();
+
+            //Display Window
+            this._renderWindow.Display();
+        }
+
+        private void DrawScreen()
+        {
+            //PAN SCREEN
+            if (KeyPressed_W) model.OffsetY += model.PanSpeed;
+            if (KeyPressed_A) model.OffsetX += model.PanSpeed;
+            if (KeyPressed_S) model.OffsetY -= model.PanSpeed;
+            if (KeyPressed_D) model.OffsetX -= model.PanSpeed;
+
+            //DRAW LINE
+            model.DrawLine(this._renderWindow);
+
+            //DRAW MARKERS
+            model.DrawMarkers(this._renderWindow);
+
+            //DRAW EVENTS
+            model.DrawEvents(this._renderWindow);
+
+            //DRAW TICKS for testing
+            model.DrawNumber(tCount++, "Ticks: ", this._renderWindow);
+        }
+
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             var rand = new Random();
@@ -87,6 +150,7 @@ namespace Timeline_Project
 
         private void OnClose(object sender, EventArgs e)
         {
+            timer.Dispose();
             RenderWindow window = (RenderWindow)sender;
             window.Close();
         }
@@ -148,76 +212,6 @@ namespace Timeline_Project
         {
             model.AddEvent(new TimelineEvent("New Event", c));
             c += 4;
-        }
-
-        private void Window_Loaded(object sender, RoutedEventArgs e)
-        {
-            //using(_timer = new System.Timers.Timer(1000 / FPS))
-            //{
-            //    context = new Context();
-            //    //_timer.Elapsed += DrawScreen; //OnTimedEvent;
-            //    _timer.Elapsed += new ElapsedEventHandler(timer_Elapsed);                      //async (_sender, _e) => await OnTimedEvent(this, new ElapsedEventArgs());
-            //    _timer.AutoReset = true;
-            //    _timer.Enabled = true;
-            //}
-
-            this._renderWindow.MouseButtonPressed += RenderWindow_MouseButtonPressed;
-            this._renderWindow.KeyPressed += new EventHandler<KeyEventArgs>(myKeyHandler);
-            this._renderWindow.KeyReleased += new EventHandler<KeyEventArgs>(myKeyReleasedHandler);
-            this._renderWindow.Closed += OnClose;
-            this._renderWindow.Resized += DrawSurface_SizeChanged;
-
-            _renderWindow.SetFramerateLimit(30);
-
-            while(_renderWindow.IsOpen)
-            {
-                UpdateWindow();
-            }
-        }
-
-        //public void timer_Elapsed(object sender, ElapsedEventArgs e)
-        //{
-        //    //DrawScreen();
-
-        //    tCount++;
-        //    if(tCount % 60 == 0) Debug.Print(tCount.ToString());
-        //}
-
-
-        private void DrawScreen()
-        {
-            //PAN SCREEN
-            if (KeyPressed_W) model.OffsetY += model.PanSpeed;
-            if (KeyPressed_A) model.OffsetX += model.PanSpeed;
-            if (KeyPressed_S) model.OffsetY -= model.PanSpeed;
-            if (KeyPressed_D) model.OffsetX -= model.PanSpeed;
-
-            //DRAW LINE
-            model.DrawLine(this._renderWindow);
-
-            //DRAW MARKERS
-            model.DrawMarkers(this._renderWindow);
-
-            //DRAW EVENTS
-            model.DrawEvents(this._renderWindow);
-
-            //DRAW TICKS for testing
-            model.DrawNumber(tCount++, "Ticks: ", this._renderWindow);
-        }
-
-        private void UpdateWindow()
-        {
-            //Process Events
-            this._renderWindow.DispatchEvents();
-
-            //Clear Screen
-            this._renderWindow.Clear(model.BackgroundColor);
-
-            //Draw Screen
-            this.DrawScreen();
-
-            //Display Window
-            this._renderWindow.Display();
         }
     }
 }
