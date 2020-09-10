@@ -46,11 +46,12 @@
                     SizeChanged="DrawSurface_SizeChanged" 
                     KeyDown="DrawSurface_KeyDown"
                     KeyUp="DrawSurface_KeyUp"
+                    MouseWheel="DrawSurface_MouseWheel"
                     />
             </WindowsFormsHost.Child>
         </WindowsFormsHost>
 
-        <Button Grid.Row="2" Click="Button_Click" Content="Random Color" Width="85" HorizontalAlignment="Left" Margin="4" />
+        <Button Grid.Row="2" Click="Button_Click_Random_Color" Content="Random Color" Width="85" HorizontalAlignment="Left" Margin="4" />
         <Button Grid.Row="2" Click="Button_Click_New_Event" Content="New Event" Width="70" HorizontalAlignment="Left" Margin="94, 4, 4, 4" />
     </Grid>
 </Window>

@@ -133,7 +133,7 @@ namespace Timeline_Project
             model.DrawNumber(tCount++, "Ticks: ", this._renderWindow);
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void Button_Click_Random_Color(object sender, RoutedEventArgs e)
         {
             var rand = new Random();
             var color = new Color((byte)rand.Next(), (byte)rand.Next(), (byte)rand.Next());
@@ -210,6 +210,11 @@ namespace Timeline_Project
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             _renderWindow.Close();
+        }
+
+        private void DrawSurface_MouseWheel(object sender, System.Windows.Forms.MouseEventArgs e)
+        {
+            model.MarkerInterval += Math.Sign(e.Delta) * 2;
         }
     }
 }
