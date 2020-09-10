@@ -4,9 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
-//using System.Threading;
-using System.Threading.Tasks;
-using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -27,7 +24,6 @@ using Color = SFML.Graphics.Color;
 using Keyboard = SFML.Window.Keyboard;
 using KeyEventArgs = SFML.Window.KeyEventArgs;
 using Window = SFML.Window.Window;
-//using Timer = System.Timers.Timer;
 
 namespace Timeline_Project
 {
@@ -49,9 +45,7 @@ namespace Timeline_Project
         public int c = 8;
         public static int tCount = 0;
 
-        public int o;
-
-        public const int FPS = 12;
+        public const int FPS = 60;
 
         public MainWindow()
         {
@@ -83,8 +77,6 @@ namespace Timeline_Project
             this._renderWindow.SetActive(true);
         }
 
-
-
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             Thread backgroundThread = new Thread(BeginGUIMethod);
@@ -97,9 +89,9 @@ namespace Timeline_Project
 
             while (_renderWindow.IsOpen)
             {
-                System.Windows.Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(() =>
+                System.Windows.Application.Current?.Dispatcher.Invoke(DispatcherPriority.Loaded, new Action(() =>
                 {
-                    if(_renderWindow.IsOpen) UpdateWindow();
+                    UpdateWindow();
                 }
                 ));
             }
@@ -148,13 +140,6 @@ namespace Timeline_Project
             model.BackgroundColor = color;
         }
 
-        private void OnClose(object sender, EventArgs e)
-        {
-            timer.Dispose();
-            RenderWindow window = (RenderWindow)sender;
-            window.Close();
-        }
-
         private void DrawSurface_SizeChanged(object sender, EventArgs e)
         {
             this.CreateRenderWindow();
@@ -165,53 +150,66 @@ namespace Timeline_Project
             
         }
 
-        private void myKeyHandler(object sender, KeyEventArgs e)
+        private void Button_Click_New_Event(object sender, RoutedEventArgs e)
         {
-            switch (e.Code)
+            model.AddEvent(new TimelineEvent("Button Event", c));
+            c += 4;
+        }
+
+        private void DrawSurface_KeyDown(object sender, System.Windows.Forms.KeyEventArgs e)
+        {
+            switch (e.KeyValue)
             {
-                case Keyboard.Key.W:
+                //Navigation
+                case 'W':
                     if (!KeyPressed_W) KeyPressed_W = true;
                     break;
 
-                case Keyboard.Key.A:
+                case 'A':
                     if (!KeyPressed_A) KeyPressed_A = true;
                     break;
 
-                case Keyboard.Key.S:
+                case 'S':
                     if (!KeyPressed_S) KeyPressed_S = true;
                     break;
 
-                case Keyboard.Key.D:
+                case 'D':
                     if (!KeyPressed_D) KeyPressed_D = true;
+                    break;
+
+                //Keyboard Shortcuts
+                case 'N':
+                    model.AddEvent(new TimelineEvent("Shortcut Event", c));
+                    c += 4;
                     break;
             }
         }
-        private void myKeyReleasedHandler(object sender, KeyEventArgs e)
+
+        private void DrawSurface_KeyUp(object sender, System.Windows.Forms.KeyEventArgs e)
         {
-            switch (e.Code)
+            switch (e.KeyValue)
             {
-                case Keyboard.Key.W:
+                case 'W':
                     KeyPressed_W = false;
                     break;
 
-                case Keyboard.Key.A:
+                case 'A':
                     KeyPressed_A = false;
                     break;
 
-                case Keyboard.Key.S:
+                case 'S':
                     KeyPressed_S = false;
                     break;
 
-                case Keyboard.Key.D:
+                case 'D':
                     KeyPressed_D = false;
                     break;
             }
         }
 
-        private void Button_Click_New_Event(object sender, RoutedEventArgs e)
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            model.AddEvent(new TimelineEvent("New Event", c));
-            c += 4;
+            _renderWindow.Close();
         }
     }
 }

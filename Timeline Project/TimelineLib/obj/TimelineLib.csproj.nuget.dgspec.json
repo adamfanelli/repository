@@ -1,20 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\repository\\repository\\Timeline Project\\TimelineLib\\TimelineLib.csproj": {}
+    "D:\\dev\\repository\\Timeline Project\\TimelineLib\\TimelineLib.csproj": {}
   },
   "projects": {
-    "C:\\repository\\repository\\Timeline Project\\TimelineLib\\TimelineLib.csproj": {
+    "D:\\dev\\repository\\Timeline Project\\TimelineLib\\TimelineLib.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\repository\\repository\\Timeline Project\\TimelineLib\\TimelineLib.csproj",
+        "projectUniqueName": "D:\\dev\\repository\\Timeline Project\\TimelineLib\\TimelineLib.csproj",
         "projectName": "TimelineLib",
-        "projectPath": "C:\\repository\\repository\\Timeline Project\\TimelineLib\\TimelineLib.csproj",
-        "packagesPath": "C:\\Users\\afanelli\\.nuget\\packages\\",
-        "outputPath": "C:\\repository\\repository\\Timeline Project\\TimelineLib\\obj\\",
+        "projectPath": "D:\\dev\\repository\\Timeline Project\\TimelineLib\\TimelineLib.csproj",
+        "packagesPath": "C:\\Users\\afane\\.nuget\\packages\\",
+        "outputPath": "D:\\dev\\repository\\Timeline Project\\TimelineLib\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
         "configFilePaths": [
-          "C:\\Users\\afanelli\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\afane\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -59,7 +62,7 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.401\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.301\\RuntimeIdentifierGraph.json"
         }
       }
     }
