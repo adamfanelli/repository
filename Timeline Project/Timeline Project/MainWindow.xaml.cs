@@ -45,7 +45,9 @@ namespace Timeline_Project
         public int c = 8;
         public static int tCount = 0;
 
-        public const int FPS = 60;
+        public const int RefreshRate = 400;
+
+        public bool requiresUpdate = false;
 
         public MainWindow()
         {
@@ -75,62 +77,60 @@ namespace Timeline_Project
             var context = new ContextSettings { DepthBits = 24 };
             this._renderWindow = new RenderWindow(DrawSurface.Handle, context);
             this._renderWindow.SetActive(true);
+
+            //this._renderWindow.SetFramerateLimit(RefreshRate);
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            Thread backgroundThread = new Thread(BeginGUIMethod);
-            backgroundThread.Start();
-        }
-
-        public void BeginGUIMethod()
-        {
-            _renderWindow.SetFramerateLimit(FPS);
-
-            while (_renderWindow.IsOpen)
-            {
-                System.Windows.Application.Current?.Dispatcher.Invoke(DispatcherPriority.Loaded, new Action(() =>
+            Thread backgroundThread = new Thread(() =>
                 {
-                    UpdateWindow();
-                }
-                ));
-            }
+                    while (_renderWindow.IsOpen)
+                    {
+                        System.Windows.Application.Current?.Dispatcher.Invoke(DispatcherPriority.Loaded, new Action(() =>
+                        {
+                            UpdateWindow();
+                        }
+                        ));
+                    }
+                });
+
+            backgroundThread.Start();
         }
 
         private void UpdateWindow()
         {
-            //Process Events
+            //      Process Events
             this._renderWindow.DispatchEvents();
 
-            //Clear Screen
+            //      Clear Screen
             this._renderWindow.Clear(model.BackgroundColor);
 
-            //Draw Screen
-            this.DrawScreen();
-
-            //Display Window
-            this._renderWindow.Display();
-        }
-
-        private void DrawScreen()
-        {
-            //PAN SCREEN
+            //      Draw Screen
+            // PAN SCREEN
             if (KeyPressed_W) model.OffsetY += model.PanSpeed;
             if (KeyPressed_A) model.OffsetX += model.PanSpeed;
             if (KeyPressed_S) model.OffsetY -= model.PanSpeed;
             if (KeyPressed_D) model.OffsetX -= model.PanSpeed;
 
-            //DRAW LINE
+            // DRAW LINE
             model.DrawLine(this._renderWindow);
 
-            //DRAW MARKERS
+            // DRAW MARKERS
             model.DrawMarkers(this._renderWindow);
 
-            //DRAW EVENTS
+            // DRAW EVENTS
             model.DrawEvents(this._renderWindow);
 
-            //DRAW TICKS for testing
-            model.DrawNumber(tCount++, "Ticks: ", this._renderWindow);
+            // DRAW TICKS for testing
+            //model.DrawNumber(tCount++, "Ticks: ", this._renderWindow);
+
+            model.DrawDebugNumber("Interval: ", model.MarkerInterval, this._renderWindow, 130);
+            model.DrawDebugNumber("Zoom: ", (float)model.Zoom, this._renderWindow, 170);
+
+
+            //      Display Window
+            this._renderWindow.Display();
         }
 
         private void Button_Click_Random_Color(object sender, RoutedEventArgs e)
@@ -160,7 +160,7 @@ namespace Timeline_Project
         {
             switch (e.KeyValue)
             {
-                //Navigation
+                // Navigation
                 case 'W':
                     if (!KeyPressed_W) KeyPressed_W = true;
                     break;
@@ -177,7 +177,7 @@ namespace Timeline_Project
                     if (!KeyPressed_D) KeyPressed_D = true;
                     break;
 
-                //Keyboard Shortcuts
+                // Keyboard Shortcuts
                 case 'N':
                     model.AddEvent(new TimelineEvent("Shortcut Event", c));
                     c += 4;
@@ -214,7 +214,7 @@ namespace Timeline_Project
 
         private void DrawSurface_MouseWheel(object sender, System.Windows.Forms.MouseEventArgs e)
         {
-            model.MarkerInterval += Math.Sign(e.Delta) * 2;
+            model.Zoom *= 1 + (Math.Sign(e.Delta) * model.ZoomSpeed/100);
         }
     }
 }

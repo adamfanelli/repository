@@ -19,8 +19,14 @@ namespace TimelineLib
         public string WindowTitle { get; set; }
 
         public RectangleShape Line { get; set; }
+
+        public const float BASE_INTERVAL = 60;
         public float MarkerInterval { get; set; }
         public float MarkerHeight { get; set; }
+
+
+        public float Zoom { get; set; }
+        public float ZoomSpeed { get; set; }
 
         public float EventFromLineHeight { get; set; }
         public uint EventTextCharacterSize { get; set; }
@@ -46,9 +52,12 @@ namespace TimelineLib
             OffsetX = 0;
             OffsetY = 0;
 
-            string dir = Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName;
+            Zoom = 1.0f;
+            ZoomSpeed = 10.0f;
 
+            string dir = Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName;
             font = new Font(dir + "\\Fonts\\Hack-Regular.ttf");
+
             EventTextCharacterSize = 20;
             EventBackgroundColor = new Color(230, 230, 230);
 
@@ -77,60 +86,69 @@ namespace TimelineLib
             window.Draw(Line);
         }
 
+        List<int> Intervals = new List<int>() { 100, 50, 20, 10, 5, 2, 1 };
+
         public void DrawMarkers(RenderWindow window)
         {
+            // Draw the origin marker (Year 0) at the X Offset
+            if(OffsetX > 0 && OffsetX < window.Size.X) DrawMarker(window, OffsetX, "0");
+
+
+            double minMarkerInterval = 60.0;
+            int Interval = -1;
+
+            int _base = 100;
+
+            while(Interval == -1)
+            {
+                foreach (int interval in Intervals)
+                {
+                    if (_base / interval * BASE_INTERVAL * Zoom > minMarkerInterval)
+                    {
+                        Interval = _base / interval;
+                        break;
+                    }
+                }
+
+                _base *= 100;
+            }
+            
+
             int nMarkers = 0;
-
-            //Always draw the origin marker (Year 0) at the X Offset
-            DrawMarker(window, OffsetX, "0");
-
-            nMarkers++;
+            int i = 0;
+            float x = 0;
 
 
-            //Go Right from the Origin Marker
-            int i = 1;
-            while (OffsetX + i * MarkerInterval < window.Size.X)
+            while (OffsetX + x < window.Size.X)
             {
-                if (OffsetX + i * MarkerInterval > 0)
+                if(OffsetX + x > 0)
                 {
-                    DrawMarker(window, OffsetX + i * MarkerInterval, i.ToString());
+                    DrawMarker(window, OffsetX + x, i.ToString());
+                    nMarkers++;
+                }
+                
+                i += Interval;
+                x += Interval * BASE_INTERVAL * Zoom;
+            }
+
+            i = -Interval;
+            x = -(Interval * BASE_INTERVAL * Zoom);
+
+            while (OffsetX + x > 0)
+            {
+                if(OffsetX + x < window.Size.X)
+                {
+                    DrawMarker(window, OffsetX + x, i.ToString());
                     nMarkers++;
                 }
 
-                i++;
+                i -= Interval;
+                x -= Interval * BASE_INTERVAL * Zoom;
             }
 
-            //Go Left from the Origin Marker
-            i = -1;
-            while (OffsetX + i * MarkerInterval > 0)
-            {
-                if (OffsetX + i * MarkerInterval < window.Size.X)
-                {
-                    DrawMarker(window, OffsetX + i * MarkerInterval, i.ToString());
-                    nMarkers++;
-                }
-
-                i--;
-            }
-
-            //Display num of markers and OffsetX at top of screen for testing
-            Text text = new Text("Markers: " + nMarkers.ToString(), font);
-            text.Position = new Vector2f(window.Size.X - text.GetLocalBounds().Width - 20, 20);
-            text.FillColor = Color.Black;
-            window.Draw(text);
-
-            Text text2 = new Text("X Offset: " + OffsetX.ToString(), font);
-            text2.Position = new Vector2f(window.Size.X - text.GetLocalBounds().Width - 40, 80);
-            text2.FillColor = Color.Black;
-            window.Draw(text2);
-        }
-
-        public void DrawNumber(int value, string message, RenderWindow renderWindow)
-        {
-            Text text = new Text(message + value.ToString(), font);
-            text.Position = new Vector2f(renderWindow.Size.X - text.GetLocalBounds().Width - 40, 140);
-            text.FillColor = Color.Black;
-            renderWindow.Draw(text);
+            DrawDebugNumber("Markers: ", nMarkers, window, 20);
+            DrawDebugNumber("Offset X: ", OffsetX, window, 80);
+            DrawDebugNumber("Interval: ", Interval, window, 140);
         }
 
         private void DrawMarker(RenderWindow window, float x, string label = "N/A")
@@ -148,11 +166,20 @@ namespace TimelineLib
             window.Draw(t);
         }
 
+
+        public void DrawDebugNumber(string message, float value, RenderWindow renderWindow, float Y)
+        {
+            Text text = new Text(message + value.ToString(), font);
+            text.Position = new Vector2f(renderWindow.Size.X - text.GetLocalBounds().Width - 40, Y);
+            text.FillColor = Color.Black;
+            renderWindow.Draw(text);
+        }
+
         public void DrawEvents(RenderWindow window)
         {
             foreach (TimelineEvent e in ListOfEvents)
             {
-                float x = OffsetX + MarkerInterval * e.StartYear;
+                float x = OffsetX + (BASE_INTERVAL * Zoom) * e.StartYear;
 
                 //Text
                 Text text = new Text(e.Name, font);
