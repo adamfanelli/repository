@@ -20,7 +20,8 @@ namespace TimelineLib
 
         public RectangleShape Line { get; set; }
 
-        public const float BASE_INTERVAL = 60;
+        // The number of pixels between 0 and 1 when Zoom is at 1.0
+        public float BASE_INTERVAL = 60;
 
         public double minMarkerInterval;
         public float MarkerInterval { get; set; }
@@ -61,7 +62,7 @@ namespace TimelineLib
 
         public void DrawLine(RenderWindow window)
         {
-            LineY = window.Size.Y / 2 + 50;
+            LineY = window.Size.Y / 2 + 50 + OffsetY;
             Line.Position = new Vector2f(0, LineY - LineThickness / 2);
             Line.Size = new Vector2f(window.Size.X, LineThickness);
             window.Draw(Line);
@@ -83,22 +84,22 @@ namespace TimelineLib
 
             int Interval = -1;
             int _base = 100;
+            bool done = false;
 
-            while (Interval == -1)
+            while (!done)
             {
-                bool finished = false;
 
                 foreach (int interval in Intervals)
                 {
                     if (_base / (100 / interval) * BASE_INTERVAL * Zoom > minMarkerInterval)
                     {
                         Interval = _base / 100 * interval;
-                        finished = true;
+                        done = true;
                         break;
                     }
                 }
 
-                if (!finished) _base *= 100;
+                if (!done) _base *= 100;
             }
 
             int highlightInterval = 2;
@@ -148,10 +149,20 @@ namespace TimelineLib
                 x -= Interval * BASE_INTERVAL * Zoom;
             }
 
+            float MouseOffsetDelta = (Mouse.GetPosition().X - window.Position.X) - OffsetX;
+
             DrawDebugNumber("Markers: ", nMarkers, window, 20);
             DrawDebugNumber("Offset X: ", OffsetX, window, 70);
             DrawDebugNumber("Interval: ", Interval, window, 120);
             DrawDebugNumber("Base: ", _base, window, 200);
+            DrawDebugNumber("Mouse X: ", Mouse.GetPosition().X - window.Position.X, window, 250);
+            DrawDebugNumber("Delta between Mouse and OffsetX: ", MouseOffsetDelta, window, 300);
+            DrawDebugNumber(
+                "Year at Mouse: ",
+                MouseOffsetDelta / (BASE_INTERVAL * Zoom), 
+                window, 
+                350
+            );
         }
 
         private void DrawMarker(RenderWindow window, float x, string label = "N/A", bool highlighted = false)

@@ -25,6 +25,7 @@ using Color = SFML.Graphics.Color;
 using Keyboard = SFML.Window.Keyboard;
 using KeyEventArgs = SFML.Window.KeyEventArgs;
 using Window = SFML.Window.Window;
+using Mouse = SFML.Window.Mouse;
 
 namespace Timeline_Project
 {
@@ -42,6 +43,10 @@ namespace Timeline_Project
         public bool KeyPressed_A;
         public bool KeyPressed_S;
         public bool KeyPressed_D;
+
+        public bool MouseDown = false;
+        public float PrevMouseX;
+        public float PrevMouseY;
 
         public int c = 8;
         public static int tCount = 0;
@@ -145,6 +150,20 @@ namespace Timeline_Project
 
             // DRAW DEBUG INFO
             model.DrawDebugNumber("Zoom: ", (float)model.Zoom, this._renderWindow, 160);
+            model.DrawDebugNumber("MouseDown: ", MouseDown ? 1 : 0, this._renderWindow, 400);
+
+            // PAN SCREEN
+            if(MouseDown)
+            {
+                float CurrMouseX = Mouse.GetPosition().X - _renderWindow.Position.X;
+                float CurrMouseY = Mouse.GetPosition().Y - _renderWindow.Position.Y;
+
+                model.OffsetX -= PrevMouseX - CurrMouseX;
+                model.OffsetY -= PrevMouseY - CurrMouseY;
+
+                PrevMouseX = CurrMouseX;
+                PrevMouseY = CurrMouseY;
+            }
 
             // DRAW TITLE
             model.DrawTitle(this._renderWindow);
@@ -164,11 +183,6 @@ namespace Timeline_Project
         private void DrawSurface_SizeChanged(object sender, EventArgs e)
         {
             this.CreateRenderWindow();
-        }
-
-        private void RenderWindow_MouseButtonPressed(object sender, SFML.Window.MouseButtonEventArgs e)
-        {
-            
         }
 
         private void Button_Click_New_Event(object sender, RoutedEventArgs e)
@@ -235,7 +249,34 @@ namespace Timeline_Project
 
         private void DrawSurface_MouseWheel(object sender, System.Windows.Forms.MouseEventArgs e)
         {
+            float oldMouseYear = (Mouse.GetPosition().X - this._renderWindow.Position.X) - model.OffsetX;
+
             model.Zoom *= 1 + (Math.Sign(e.Delta) * model.ZoomSpeed/100);
+
+            float newMouseYear = (Mouse.GetPosition().X - this._renderWindow.Position.X) - model.OffsetX;
+
+            float n = (oldMouseYear - newMouseYear) * model.Zoom * model.BASE_INTERVAL;
+
+            model.OffsetX += n;
+        }
+
+        private void DrawSurface_MouseDown(object sender, System.Windows.Forms.MouseEventArgs e)
+        {
+            MouseDown = true;
+
+            PrevMouseX = Mouse.GetPosition().X - _renderWindow.Position.X;
+            PrevMouseY = Mouse.GetPosition().Y - _renderWindow.Position.Y;
+        }
+
+        private void DrawSurface_MouseUp(object sender, System.Windows.Forms.MouseEventArgs e)
+        {
+            MouseDown = false;
+        }
+
+        private void DrawSurface_DoubleClick(object sender, EventArgs e)
+        {
+            model.AddEvent(new TimelineEvent("Double-Click Event", c));
+            c += 4;
         }
     }
 }

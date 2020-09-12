@@ -29,12 +29,14 @@
                 <MenuItem Header="Edit">
                     <MenuItem Header="Copy" />
                     <MenuItem Header="Paste" />
+                    <MenuItem Header="New Event" />
                     <MenuItem Header="Options" />
                 </MenuItem>
 
                 <MenuItem Header="View">
+                    <MenuItem Header="Show Guidelines" />
+                    <Separator />
                     <MenuItem Header="Themes" />
-                    <MenuItem Header="Preferences" />
                 </MenuItem>
             </Menu>
         </DockPanel>
@@ -47,6 +49,9 @@
                     KeyDown="DrawSurface_KeyDown"
                     KeyUp="DrawSurface_KeyUp"
                     MouseWheel="DrawSurface_MouseWheel"
+                    MouseDown="DrawSurface_MouseDown"
+                    MouseUp="DrawSurface_MouseUp"
+                    DoubleClick="DrawSurface_DoubleClick"
                     />
             </WindowsFormsHost.Child>
         </WindowsFormsHost>
