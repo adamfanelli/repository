@@ -75,13 +75,16 @@ namespace Timeline_Project
                 Zoom = 1.0f,
                 ZoomSpeed = 10.0f,
 
-                font = new Font(Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName +
+                primaryFont = new Font(Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName +
+                    "\\Fonts\\GeosansLight.ttf"),
+
+                secondaryFont = new Font(Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName +
                     "\\Fonts\\OptimusPrinceps.ttf"),
 
-                EventTextCharacterSize = 20,
+                EventTextCharacterSize = 25,
                 EventBackgroundColor = new Color(230, 230, 230),
 
-                EventFromLineHeight = 50,
+                EventFromLineHeight = 70,
 
                 MarkerInterval = 60,
                 minMarkerInterval = 100,
@@ -150,6 +153,7 @@ namespace Timeline_Project
 
             // DRAW DEBUG INFO
             model.DrawDebugNumber("Zoom: ", (float)model.Zoom, this._renderWindow, 220);
+            model.DrawDebugNumber("Focus: ", this._renderWindow.HasFocus() ? 1 : 0, this._renderWindow, 280);
 
             // PAN SCREEN
             if(MouseDown)

@@ -40,7 +40,8 @@ namespace TimelineLib
         public float OffsetX { get; set; }
         public float OffsetY { get; set; }
         public float ScrollSpeed { get; set; }
-        public Font font { get; set; }
+        public Font primaryFont { get; set; }
+        public Font secondaryFont { get; set; }
         public Color EventBackgroundColor { get; set; }
         public Color BackgroundColor { get; set; }
 
@@ -179,7 +180,7 @@ namespace TimelineLib
             marker.FillColor = Color.Black;
             window.Draw(marker);
 
-            Text t = new Text(label, font);
+            Text t = new Text(label, primaryFont);
             t.FillColor = Color.Black;
             if (highlighted)
             {
@@ -198,7 +199,7 @@ namespace TimelineLib
 
         public void DrawDebugNumber(string message, float value, RenderWindow renderWindow, float Y)
         {
-            Text text = new Text(message + value.ToString(), font);
+            Text text = new Text(message + value.ToString(), secondaryFont);
             text.Position = new Vector2f(renderWindow.Size.X - text.GetLocalBounds().Width - 40, Y);
             text.FillColor = Color.Black;
             renderWindow.Draw(text);
@@ -206,7 +207,7 @@ namespace TimelineLib
 
         public void DrawTitle(RenderWindow renderWindow)
         {
-            Text text = new Text(TimelineTitle, font);
+            Text text = new Text(TimelineTitle, secondaryFont);
             text.Position = new Vector2f(20, 20);
             text.FillColor = Color.Black;
             renderWindow.Draw(text);
@@ -220,7 +221,7 @@ namespace TimelineLib
                 float y = LineY - EventFromLineHeight;
 
                 //Text
-                Text text = new Text(e.Name, font);
+                Text text = new Text(e.Name, primaryFont);
                 text.CharacterSize = EventTextCharacterSize;
                 text.Position = new Vector2f((int)(x - text.GetLocalBounds().Width / 2), y);
                 text.FillColor = Color.Black;
@@ -229,7 +230,7 @@ namespace TimelineLib
                 RectangleShape textBg = new RectangleShape();
                 textBg.FillColor = EventBackgroundColor;
                 textBg.Position = new Vector2f(text.Position.X - 5, text.Position.Y - 5);
-                textBg.Size = new Vector2f(text.GetLocalBounds().Width + 10, text.GetLocalBounds().Height + 20);
+                textBg.Size = new Vector2f(text.GetLocalBounds().Width + 13, text.GetLocalBounds().Height + 20);
 
                 //Triangle
                 VertexArray triangle = new VertexArray(PrimitiveType.Triangles, 3);
