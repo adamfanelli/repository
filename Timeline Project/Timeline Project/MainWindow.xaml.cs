@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -57,9 +58,31 @@ namespace Timeline_Project
 
             model = new TimelineModel()
             {
+                WindowTitle = "Timeline Project",
+                WindowWidth = 1200,
+                WindowHeight = 900,
+
+                TimelineTitle = "History of America",
+
                 OffsetX = this._renderWindow.Size.X / 2,
+                OffsetY = 0,
+
+                Zoom = 1.0f,
+                ZoomSpeed = 10.0f,
+
+                font = new Font(Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName +
+                    "\\Fonts\\OptimusPrinceps.ttf"),
+
+                EventTextCharacterSize = 20,
+                EventBackgroundColor = new Color(230, 230, 230),
+
+                EventFromLineHeight = 50,
+
+                MarkerInterval = 60,
+                minMarkerInterval = 100,
+                MarkerHeight = 14,
                 BackgroundColor = new Color(255, 253, 244),
-                PanSpeed = 10f
+                PanSpeed = 5f
             };
 
             model.AddEvent(new TimelineEvent("Test event", 2));
@@ -77,8 +100,6 @@ namespace Timeline_Project
             var context = new ContextSettings { DepthBits = 24 };
             this._renderWindow = new RenderWindow(DrawSurface.Handle, context);
             this._renderWindow.SetActive(true);
-
-            //this._renderWindow.SetFramerateLimit(RefreshRate);
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -122,11 +143,11 @@ namespace Timeline_Project
             // DRAW EVENTS
             model.DrawEvents(this._renderWindow);
 
-            // DRAW TICKS for testing
-            //model.DrawNumber(tCount++, "Ticks: ", this._renderWindow);
+            // DRAW DEBUG INFO
+            model.DrawDebugNumber("Zoom: ", (float)model.Zoom, this._renderWindow, 160);
 
-            model.DrawDebugNumber("Interval: ", model.MarkerInterval, this._renderWindow, 130);
-            model.DrawDebugNumber("Zoom: ", (float)model.Zoom, this._renderWindow, 170);
+            // DRAW TITLE
+            model.DrawTitle(this._renderWindow);
 
 
             //      Display Window
