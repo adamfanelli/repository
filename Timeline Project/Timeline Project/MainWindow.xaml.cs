@@ -87,7 +87,7 @@ namespace Timeline_Project
                 minMarkerInterval = 100,
                 MarkerHeight = 14,
                 BackgroundColor = new Color(255, 253, 244),
-                PanSpeed = 5f
+                ScrollSpeed = 5f
             };
 
             model.AddEvent(new TimelineEvent("Test event", 2));
@@ -133,11 +133,11 @@ namespace Timeline_Project
             this._renderWindow.Clear(model.BackgroundColor);
 
             //      Draw Screen
-            // PAN SCREEN
-            if (KeyPressed_W) model.OffsetY += model.PanSpeed;
-            if (KeyPressed_A) model.OffsetX += model.PanSpeed;
-            if (KeyPressed_S) model.OffsetY -= model.PanSpeed;
-            if (KeyPressed_D) model.OffsetX -= model.PanSpeed;
+            // SCROLL SCREEN
+            if (KeyPressed_W) model.OffsetY += model.ScrollSpeed;
+            if (KeyPressed_A) model.OffsetX += model.ScrollSpeed;
+            if (KeyPressed_S) model.OffsetY -= model.ScrollSpeed;
+            if (KeyPressed_D) model.OffsetX -= model.ScrollSpeed;
 
             // DRAW LINE
             model.DrawLine(this._renderWindow);
@@ -149,8 +149,7 @@ namespace Timeline_Project
             model.DrawEvents(this._renderWindow);
 
             // DRAW DEBUG INFO
-            model.DrawDebugNumber("Zoom: ", (float)model.Zoom, this._renderWindow, 160);
-            model.DrawDebugNumber("MouseDown: ", MouseDown ? 1 : 0, this._renderWindow, 400);
+            model.DrawDebugNumber("Zoom: ", (float)model.Zoom, this._renderWindow, 220);
 
             // PAN SCREEN
             if(MouseDown)
@@ -197,19 +196,19 @@ namespace Timeline_Project
             {
                 // Navigation
                 case 'W':
-                    if (!KeyPressed_W) KeyPressed_W = true;
+                    KeyPressed_W = true;
                     break;
 
                 case 'A':
-                    if (!KeyPressed_A) KeyPressed_A = true;
+                    KeyPressed_A = true;
                     break;
 
                 case 'S':
-                    if (!KeyPressed_S) KeyPressed_S = true;
+                    KeyPressed_S = true;
                     break;
 
                 case 'D':
-                    if (!KeyPressed_D) KeyPressed_D = true;
+                    KeyPressed_D = true;
                     break;
 
                 // Keyboard Shortcuts
@@ -249,15 +248,13 @@ namespace Timeline_Project
 
         private void DrawSurface_MouseWheel(object sender, System.Windows.Forms.MouseEventArgs e)
         {
-            float oldMouseYear = (Mouse.GetPosition().X - this._renderWindow.Position.X) - model.OffsetX;
+            float oldDelta = (Mouse.GetPosition().X - this._renderWindow.Position.X) - model.OffsetX;
 
             model.Zoom *= 1 + (Math.Sign(e.Delta) * model.ZoomSpeed/100);
 
-            float newMouseYear = (Mouse.GetPosition().X - this._renderWindow.Position.X) - model.OffsetX;
+            float newDelta = (1 + (Math.Sign(e.Delta) * model.ZoomSpeed / 100)) * oldDelta;
 
-            float n = (oldMouseYear - newMouseYear) * model.Zoom * model.BASE_INTERVAL;
-
-            model.OffsetX += n;
+            model.OffsetX += oldDelta - newDelta;
         }
 
         private void DrawSurface_MouseDown(object sender, System.Windows.Forms.MouseEventArgs e)

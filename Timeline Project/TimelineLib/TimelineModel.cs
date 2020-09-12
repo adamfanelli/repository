@@ -39,7 +39,7 @@ namespace TimelineLib
 
         public float OffsetX { get; set; }
         public float OffsetY { get; set; }
-        public float PanSpeed { get; set; }
+        public float ScrollSpeed { get; set; }
         public Font font { get; set; }
         public Color EventBackgroundColor { get; set; }
         public Color BackgroundColor { get; set; }
@@ -151,17 +151,17 @@ namespace TimelineLib
 
             float MouseOffsetDelta = (Mouse.GetPosition().X - window.Position.X) - OffsetX;
 
-            DrawDebugNumber("Markers: ", nMarkers, window, 20);
-            DrawDebugNumber("Offset X: ", OffsetX, window, 70);
-            DrawDebugNumber("Interval: ", Interval, window, 120);
-            DrawDebugNumber("Base: ", _base, window, 200);
-            DrawDebugNumber("Mouse X: ", Mouse.GetPosition().X - window.Position.X, window, 250);
-            DrawDebugNumber("Delta between Mouse and OffsetX: ", MouseOffsetDelta, window, 300);
+            //DrawDebugNumber("Markers: ", nMarkers, window, 20);
+            DrawDebugNumber("Offset X: ", OffsetX, window, 20);
+            //DrawDebugNumber("Interval: ", Interval, window, 120);
+            //DrawDebugNumber("Base: ", _base, window, 200);
+            DrawDebugNumber("Mouse X: ", Mouse.GetPosition().X - window.Position.X, window, 70);
+            DrawDebugNumber("Delta between Mouse and OffsetX: ", MouseOffsetDelta, window, 120);
             DrawDebugNumber(
                 "Year at Mouse: ",
                 MouseOffsetDelta / (BASE_INTERVAL * Zoom), 
                 window, 
-                350
+                170
             );
         }
 
