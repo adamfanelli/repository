@@ -59,16 +59,17 @@ namespace Timeline_Project
         {
             InitializeComponent();
 
+
             // Test ViewModel
             model = new TimelineViewModel()
             {
-                WindowTitle = "Timeline Project",
-
                 LineThickness = 4,
                 Zoom = 1.0f,
                 ZoomSpeed = 10.0f,
 
                 EventTextCharacterSize = 25,
+                MarkerCharacterSize = 14,
+                MarkerHighlightedCharacterSize = 18,
                 EventFromLineHeight = 70,
 
                 IntervalThresholdPx = 100,

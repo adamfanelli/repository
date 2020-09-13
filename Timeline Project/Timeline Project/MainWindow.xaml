@@ -10,7 +10,7 @@
         Closing="Window_Closing"
         MinHeight="600"
         MinWidth="800"
-        Title="MainWindow" Height="800" Width="1200">
+        Title="Timeline Project" Height="800" Width="1200">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="20"/>

@@ -18,13 +18,13 @@ namespace TimelineLib
         public string Name { get; set; }
         public float StartYear { get; set; }
 
-        public Color backgroundColor { get; set; }
+        public Color BackgroundColor { get; set; }
 
         public EventModel(string name, float startYear)
         {
             Name = name;
             StartYear = startYear;
-            //backgroundColor = color;
+            //BackgroundColor = color;
         }
     }
 }

@@ -2,14 +2,11 @@
 using System.IO;
 using System.Collections.Generic;
 using System.Text;
-
-using System;
 using SFML.Graphics;
 using SFML.Window;
 using SFML.System;
 using TimelineLib;
 using TimelineLib.Themes;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
@@ -31,10 +28,13 @@ namespace TimelineLib
 
         public float Zoom { get; set; }
         public float ZoomSpeed { get; set; }
+        public float ScrollSpeed { get; set; }
 
         public float EventFromLineHeight { get; set; }
         public float MarkerHeight { get; set; }
         public uint EventTextCharacterSize { get; set; }
+        public uint MarkerCharacterSize { get; set; }
+        public uint MarkerHighlightedCharacterSize { get; set; }
 
 
 
@@ -55,7 +55,6 @@ namespace TimelineLib
         public float OffsetX { get; set; }
         public float OffsetY { get; set; }
         public float LineY { get; set; }
-        public float ScrollSpeed { get; set; }
         public Font PrimaryFont { get; set; }
         public Font SecondaryFont { get; set; }
 
@@ -104,15 +103,9 @@ namespace TimelineLib
 
         public void DrawMarkers(RenderWindow window)
         {
-            int nMarkers = 0;
-
             // Draw the origin (year 0) marker
             if (OffsetX > 0 && OffsetX < window.Size.X)
-            {
                 DrawMarker(window, OffsetX, "0", true);
-                nMarkers++;
-            }
-                
 
             int Interval = -1;
             int _base = 100;
@@ -136,14 +129,14 @@ namespace TimelineLib
             int highlightInterval = 2;
             switch (Interval / (_base / 100))
             {
-                case 1:     highlightInterval = 5;       break;
-                case 2:     highlightInterval = 10;      break;
-                case 5:     highlightInterval = 50;      break;
-                case 10:    highlightInterval = 50;      break;
-                case 20:    highlightInterval = 100;     break;
-                case 25:    highlightInterval = 100;     break;
-                case 50:    highlightInterval = 100;     break;
-                case 100:   highlightInterval = 500;     break;
+                case 1: highlightInterval = 5; break;
+                case 2: highlightInterval = 10; break;
+                case 5: highlightInterval = 50; break;
+                case 10: highlightInterval = 50; break;
+                case 20: highlightInterval = 100; break;
+                case 25: highlightInterval = 100; break;
+                case 50: highlightInterval = 100; break;
+                case 100: highlightInterval = 500; break;
             }
 
             highlightInterval *= _base / 100;
@@ -155,12 +148,9 @@ namespace TimelineLib
 
             while (OffsetX + x < window.Size.X)
             {
-                if(OffsetX + x > 0)
-                {
+                if (OffsetX + x > 0)
                     DrawMarker(window, OffsetX + x, i.ToString(), i % highlightInterval == 0);
-                    nMarkers++;
-                }
-                
+
                 i += Interval;
                 x += Interval * IntervalLengthPx * Zoom;
             }
@@ -170,34 +160,13 @@ namespace TimelineLib
 
             while (OffsetX + x > 0)
             {
-                if(OffsetX + x < window.Size.X)
-                {
+                if (OffsetX + x < window.Size.X)
                     DrawMarker(window, OffsetX + x, i.ToString(), i % highlightInterval == 0);
-                    nMarkers++;
-                }
 
                 i -= Interval;
                 x -= Interval * IntervalLengthPx * Zoom;
             }
-
-            float MouseOffsetDelta = (Mouse.GetPosition().X - window.Position.X) - OffsetX;
-
-            //DrawDebugNumber("Markers: ", nMarkers, window, 20);
-            //DrawDebugNumber("Offset X: ", OffsetX, window, 20);
-            //DrawDebugNumber("Interval: ", Interval, window, 120);
-            //DrawDebugNumber("Base: ", _base, window, 200);
-            //DrawDebugNumber("Mouse X: ", Mouse.GetPosition().X - window.Position.X, window, 70);
-            //DrawDebugNumber("Delta between Mouse and OffsetX: ", MouseOffsetDelta, window, 120);
-
-            DrawDebugNumber(
-                "Year at Mouse: ",
-                YearAtMouse, 
-                window, 
-                20
-            );
         }
-
-        
 
         private void DrawMarker(RenderWindow window, float x, string label = "N/A", bool highlighted = false)
         {
@@ -217,25 +186,16 @@ namespace TimelineLib
             t.FillColor = Theme.TextColor;
             if (highlighted)
             {
-                t.CharacterSize = 18;
+                t.CharacterSize = MarkerHighlightedCharacterSize;
                 t.Style = Text.Styles.Bold;
             }
             else
             {
-                t.CharacterSize = 14;
+                t.CharacterSize = MarkerCharacterSize;
             }
             t.Position = new Vector2f(marker.Position.X - t.GetLocalBounds().Width / 2, marker.Position.Y + 25);
 
             window.Draw(t);
-        }
-
-
-        public void DrawDebugNumber(string message, float value, RenderWindow renderWindow, float Y)
-        {
-            Text text = new Text(message + value.ToString(), SecondaryFont);
-            text.Position = new Vector2f(renderWindow.Size.X - text.GetLocalBounds().Width - 40, Y);
-            text.FillColor = Theme.TextColor;
-            renderWindow.Draw(text);
         }
 
         public void DrawTitle(RenderWindow renderWindow)
@@ -277,22 +237,9 @@ namespace TimelineLib
                 connectorTriangle[1] = new Vertex(new Vector2f(text.Position.X + text.GetLocalBounds().Width / 2 + 8, (LineY - LineThickness / 2) - 8), Theme.TextColor);
                 connectorTriangle[2] = new Vertex(new Vector2f(text.Position.X + text.GetLocalBounds().Width / 2, (LineY - LineThickness / 2)), Theme.TextColor);
 
-                // Connector Line
-                //RectangleShape connectorLine = new RectangleShape();
-                //connectorLine.FillColor = Color.Red; // Theme.EventBackgroundColor;
-                //connectorLine.Position = new Vector2f(text.Position.X + text.GetLocalBounds().Width / 2, textBg.Position.Y + textBg.Size.Y);
-                //connectorLine.Size = new Vector2f(2, (LineY - 10) - (text.Position.Y + text.GetLocalBounds().Height));
-
-                // Connector Dot
-                //CircleShape connectorDot = new CircleShape();
-                //connectorDot.FillColor = Theme.EventBackgroundColor;
-                //connectorDot.Radius = 5;
-                //connectorDot.Position = new Vector2f(text.Position.X + text.GetLocalBounds().Width / 2 - connectorDot.Radius / 2, LineY - 12);
-
                 window.Draw(textBg);
                 window.Draw(triangle);
                 window.Draw(text);
-                //window.Draw(connectorLine);
                 window.Draw(connectorTriangle);
             }
         }
