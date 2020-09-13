@@ -35,12 +35,10 @@ namespace Timeline_Project
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : System.Windows.Window, INotifyPropertyChanged
+    public partial class MainWindow : System.Windows.Window
     {
         private RenderWindow _renderWindow;
-        private TimelineModel model;
-
-        public System.Timers.Timer timer;
+        private TimelineViewModel model;
 
         public bool KeyPressed_W;
         public bool KeyPressed_A;
@@ -52,64 +50,53 @@ namespace Timeline_Project
         public float PrevMouseX;
         public float PrevMouseY;
 
-        private bool isSideColumnVisible;
-        public bool IsSideColumnVisible
-        {
-            get { return isSideColumnVisible; }
-            set
-            {
-                isSideColumnVisible = value;
-                NotifyPropertyChanged();
-            }
-        }
-
-        public int c = 8;
-        public static int tCount = 0;
-
         public bool UpdateFlag = false;
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+        public string WindowTitle { get; set; }
+
 
         public MainWindow()
         {
             InitializeComponent();
-            this.DataContext = this;
 
-            model = new TimelineModel()
+            // Test ViewModel
+            model = new TimelineViewModel()
             {
                 WindowTitle = "Timeline Project",
-                WindowWidth = 1200,
-                WindowHeight = 900,
 
-                TimelineTitle = "History of America",
-                OffsetY = 0,
-                OffsetX = 0,
-
+                LineThickness = 4,
                 Zoom = 1.0f,
                 ZoomSpeed = 10.0f,
 
-                primaryFont = new Font(Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName +
-                    "\\Fonts\\GeosansLight.ttf"),
-
-                secondaryFont = new Font(Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName +
-                    "\\Fonts\\OptimusPrinceps.ttf"),
-
                 EventTextCharacterSize = 25,
-
                 EventFromLineHeight = 70,
 
-                MarkerInterval = 60,
-                minMarkerInterval = 100,
+                IntervalThresholdPx = 100,
+                IntervalLengthPx = 60,
                 MarkerHeight = 14,
                 ScrollSpeed = 5f
             };
 
+            // Test Model
+            model.SetViewModel(new TimelineModel()
+            {
+                Title = "History of America",
+
+
+                PrimaryFont = new Font(Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName +
+                    "\\Fonts\\GeosansLight.ttf"),
+
+                SecondaryFont = new Font(Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName +
+                    "\\Fonts\\OptimusPrinceps.ttf"),
+
+                Theme = new ThemeBlue()
+            });
+
             model.AddEvent(new EventModel("Test event", 2));
             model.AddEvent(new EventModel("Test event 2", -5.25f));
+
+
+            this.DataContext = model;
 
             this.CreateRenderWindow();
 
@@ -143,7 +130,7 @@ namespace Timeline_Project
                         {
                             // Update Year At Mouse
                             model.YearAtMouse = (int)Math.Round(
-                                (Mouse.GetPosition().X - _renderWindow.Position.X - model.OffsetX) / (model.BASE_INTERVAL * model.Zoom));
+                                (Mouse.GetPosition().X - _renderWindow.Position.X - model.OffsetX) / (model.IntervalLengthPx * model.Zoom));
 
                             // Update Window, If Necessary
                             bool Update; 
@@ -175,7 +162,7 @@ namespace Timeline_Project
             this._renderWindow.DispatchEvents();
 
             //      Clear Screen
-            this._renderWindow.Clear(model.theme.BackgroundColor);
+            this._renderWindow.Clear(model.Theme.BackgroundColor);
 
             //      Draw Screen
             // SCROLL SCREEN
@@ -196,7 +183,6 @@ namespace Timeline_Project
             // DRAW DEBUG INFO
             //model.DrawDebugNumber("Zoom: ", (float)model.Zoom, this._renderWindow, 220);
             //model.DrawDebugNumber("Focus: ", this._renderWindow.HasFocus() ? 1 : 0, this._renderWindow, 280);
-
             //model.DrawDebugNumber("Column Visible: ", IsSideColumnVisible ? 1 : 0, this._renderWindow, 120);
 
             // PAN SCREEN
@@ -222,7 +208,7 @@ namespace Timeline_Project
 
         public void ToggleSideColumn()
         {
-            IsSideColumnVisible = !IsSideColumnVisible;
+            model.IsSideColumnVisible = !model.IsSideColumnVisible;
             UpdateFlag = true;
         }
 
@@ -254,8 +240,7 @@ namespace Timeline_Project
 
                 // Keyboard Shortcuts
                 case 'N':
-                    model.AddEvent(new EventModel("Shortcut Event", c));
-                    c += 4;
+                    model.AddEvent(new EventModel("Shortcut Event", model.YearAtMouse));
                     UpdateWindow();
                     break;
             }
@@ -321,32 +306,29 @@ namespace Timeline_Project
 
         private void MenuItem_Click_NewEvent(object sender, RoutedEventArgs e)
         {
-            //model.AddEvent(new TimelineEvent("Menu Event", c));
-            //c += 4;
-
-            //Window eventWindow = new Window(new VideoMode(800, 600), "New Event");
+            ToggleSideColumn();
         }
 
-        private void ChangeTheme(object sender, RoutedEventArgs e)
+        private void On_ThemeChange(object sender, RoutedEventArgs e)
         {
             System.Windows.Controls.MenuItem src = (System.Windows.Controls.MenuItem)e.Source;
 
             switch(src.Name)
             {
                 case "Beige":
-                    model.theme = new ThemeBeige();
+                    model.Theme = new ThemeBeige();
                     break;
 
                 case "Blue":
-                    model.theme = new ThemeBlue();
+                    model.Theme = new ThemeBlue();
                     break;
 
                 case "Green":
-                    model.theme = new ThemeGreen();
+                    model.Theme = new ThemeGreen();
                     break;
 
                 default:
-                    model.theme = new ThemeGreen();
+                    model.Theme = new ThemeGreen();
                     break;
             }
 

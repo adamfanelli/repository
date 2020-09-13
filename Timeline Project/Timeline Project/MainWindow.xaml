@@ -72,9 +72,9 @@
 
                 <MenuItem Header="View">
                     <MenuItem Header="Themes">
-                        <MenuItem Name="Blue" Header="Ocean" Click="ChangeTheme"/>
-                        <MenuItem Name="Beige" Header="Parchment" Click="ChangeTheme"/>
-                        <MenuItem Name="Green" Header="Forest" Click="ChangeTheme"/>
+                        <MenuItem Name="Blue" Header="Ocean" Click="On_ThemeChange"/>
+                        <MenuItem Name="Beige" Header="Parchment" Click="On_ThemeChange"/>
+                        <MenuItem Name="Green" Header="Forest" Click="On_ThemeChange"/>
                     </MenuItem>
                 </MenuItem>
             </Menu>
