@@ -52,19 +52,21 @@ namespace Timeline_Project
         public float PrevMouseX;
         public float PrevMouseY;
 
-        private bool isUtilColumnVisible;
-        public bool IsUtilColumnVisible
+        private bool isSideColumnVisible;
+        public bool IsSideColumnVisible
         {
-            get { return isUtilColumnVisible; }
+            get { return isSideColumnVisible; }
             set
             {
-                isUtilColumnVisible = value;
+                isSideColumnVisible = value;
                 NotifyPropertyChanged();
             }
         }
 
         public int c = 8;
         public static int tCount = 0;
+
+        public bool UpdateFlag = false;
 
         public event PropertyChangedEventHandler PropertyChanged;
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
@@ -139,9 +141,24 @@ namespace Timeline_Project
                     {
                         System.Windows.Application.Current?.Dispatcher.Invoke(DispatcherPriority.Loaded, new Action(() =>
                         {
-                            bool Update = 
+                            // Update Year At Mouse
+                            model.YearAtMouse = (int)Math.Round(
+                                (Mouse.GetPosition().X - _renderWindow.Position.X - model.OffsetX) / (model.BASE_INTERVAL * model.Zoom));
+
+                            // Update Window, If Necessary
+                            bool Update; 
+
+                            if (UpdateFlag)
+                            {
+                                Update = true;
+                                UpdateFlag = false;
+                            }
+                            else
+                            {
+                                Update =
                                 IsMouseDown ||
                                 KeyPressed_W || KeyPressed_A || KeyPressed_S || KeyPressed_D;
+                            }
                             
                             if(Update) UpdateWindow();
                         }
@@ -180,7 +197,7 @@ namespace Timeline_Project
             //model.DrawDebugNumber("Zoom: ", (float)model.Zoom, this._renderWindow, 220);
             //model.DrawDebugNumber("Focus: ", this._renderWindow.HasFocus() ? 1 : 0, this._renderWindow, 280);
 
-            model.DrawDebugNumber("Column Visible: ", IsUtilColumnVisible ? 1 : 0, this._renderWindow, 120);
+            //model.DrawDebugNumber("Column Visible: ", IsSideColumnVisible ? 1 : 0, this._renderWindow, 120);
 
             // PAN SCREEN
             if(IsMouseDown)
@@ -203,17 +220,15 @@ namespace Timeline_Project
             this._renderWindow.Display();
         }
 
+        public void ToggleSideColumn()
+        {
+            IsSideColumnVisible = !IsSideColumnVisible;
+            UpdateFlag = true;
+        }
+
         private void DrawSurface_SizeChanged(object sender, EventArgs e)
         {
             this.CreateRenderWindow();
-        }
-
-        private void Button_Click_New_Event(object sender, RoutedEventArgs e)
-        {
-            //model.AddEvent(new EventModel("Button Event", c));
-            //c += 4;
-
-            IsUtilColumnVisible = !IsUtilColumnVisible;
         }
 
         private void DrawSurface_KeyDown(object sender, System.Windows.Forms.KeyEventArgs e)
@@ -241,6 +256,7 @@ namespace Timeline_Project
                 case 'N':
                     model.AddEvent(new EventModel("Shortcut Event", c));
                     c += 4;
+                    UpdateWindow();
                     break;
             }
         }
@@ -300,14 +316,7 @@ namespace Timeline_Project
 
         private void DrawSurface_DoubleClick(object sender, EventArgs e)
         {
-            model.AddEvent(new EventModel("Double-Click Event", c));
-            c += 4;
-        }
-
-        private void DrawSurface_LostFocus(object sender, EventArgs e)
-        {
-            //Keep focus on the render window when WPF controls are used
-            DrawSurface.Focus();
+            ToggleSideColumn();
         }
 
         private void MenuItem_Click_NewEvent(object sender, RoutedEventArgs e)
@@ -340,6 +349,8 @@ namespace Timeline_Project
                     model.theme = new ThemeGreen();
                     break;
             }
+
+            DrawSurface.Focus();
 
             UpdateWindow();
         }

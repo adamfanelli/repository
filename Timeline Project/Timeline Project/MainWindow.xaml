@@ -8,18 +8,26 @@
         mc:Ignorable="d"
         Loaded="Window_Loaded"
         Closing="Window_Closing"
-        DataContext=""
+        MinHeight="600"
+        MinWidth="800"
         Title="MainWindow" Height="800" Width="1200">
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
         <Grid.ColumnDefinitions>
+            <!--Main Column-->
             <ColumnDefinition Width="*" />
-            
+
+            <!--Side Column-->
             <ColumnDefinition>
                 <ColumnDefinition.Style>
                     <Style TargetType="ColumnDefinition">
                         <Setter Property="Width" Value="250" />
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsUtilColumnVisible}" Value="False">
+                            <DataTrigger Binding="{Binding IsSideColumnVisible}" Value="False">
                                 <Setter Property="Width" Value="0" />
                             </DataTrigger>
                         </Style.Triggers>
@@ -28,13 +36,20 @@
             </ColumnDefinition>
         </Grid.ColumnDefinitions>
         
-        <Grid.RowDefinitions>
-            <RowDefinition Height="20"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="30"/>
-        </Grid.RowDefinitions>
+        <!--New Event Form-->
+        <StackPanel Grid.Column="1" Grid.Row="1" Margin="20">
+            <TextBlock Text="New Event" Margin="0, 0, 0, 20"/>
+            
 
-        <Button Grid.Column="1" Grid.Row="1" Content="Add Event" Width="80" Height="30" VerticalAlignment="Top" Margin="0, 60, 0, 0"/>
+            <Label Content="Name"/>
+            <TextBox Width="auto"/>
+
+            <Label Content="Year"/>
+            <TextBox Width="100" HorizontalAlignment="Left"/>
+
+
+            <Button Content="Add Event" Width="80" Height="30" VerticalAlignment="Top" Margin="0, 60, 0, 0"/>
+        </StackPanel>
 
 
 
@@ -76,11 +91,8 @@
                     MouseDown="DrawSurface_MouseDown"
                     MouseUp="DrawSurface_MouseUp"
                     DoubleClick="DrawSurface_DoubleClick"
-                    LostFocus="DrawSurface_LostFocus"
                     />
             </WindowsFormsHost.Child>
         </WindowsFormsHost>
-
-        <Button Grid.Row="2" Click="Button_Click_New_Event" Content="New Event" Width="70" HorizontalAlignment="Left" Margin="94, 4, 4, 4" />
     </Grid>
 </Window>

@@ -41,6 +41,8 @@ namespace TimelineLib
 
         public float LineY { get; set; }
 
+        public int YearAtMouse { get; set; }
+
 
         public float OffsetX { get; set; }
         public float OffsetY { get; set; }
@@ -169,7 +171,7 @@ namespace TimelineLib
 
             DrawDebugNumber(
                 "Year at Mouse: ",
-                MouseOffsetDelta / (BASE_INTERVAL * Zoom), 
+                YearAtMouse, 
                 window, 
                 20
             );
