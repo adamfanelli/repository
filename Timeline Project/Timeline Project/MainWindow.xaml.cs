@@ -20,19 +20,22 @@ using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
 using TimelineLib;
+using TimelineLib.Themes;
 
 using Color = SFML.Graphics.Color;
 using Keyboard = SFML.Window.Keyboard;
 using KeyEventArgs = SFML.Window.KeyEventArgs;
 using Window = SFML.Window.Window;
 using Mouse = SFML.Window.Mouse;
+using System.Runtime.CompilerServices;
+using System.ComponentModel;
 
 namespace Timeline_Project
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : System.Windows.Window
+    public partial class MainWindow : System.Windows.Window, INotifyPropertyChanged
     {
         private RenderWindow _renderWindow;
         private TimelineModel model;
@@ -44,22 +47,35 @@ namespace Timeline_Project
         public bool KeyPressed_S;
         public bool KeyPressed_D;
 
-        public bool MouseDown = false;
+        public bool IsMouseDown = false;
+
         public float PrevMouseX;
         public float PrevMouseY;
+
+        private bool isUtilColumnVisible;
+        public bool IsUtilColumnVisible
+        {
+            get { return isUtilColumnVisible; }
+            set
+            {
+                isUtilColumnVisible = value;
+                NotifyPropertyChanged();
+            }
+        }
 
         public int c = 8;
         public static int tCount = 0;
 
-        public const int RefreshRate = 400;
-
-        public bool requiresUpdate = false;
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
 
         public MainWindow()
         {
             InitializeComponent();
-
-            this.CreateRenderWindow();
+            this.DataContext = this;
 
             model = new TimelineModel()
             {
@@ -68,9 +84,8 @@ namespace Timeline_Project
                 WindowHeight = 900,
 
                 TimelineTitle = "History of America",
-
-                OffsetX = this._renderWindow.Size.X / 2,
                 OffsetY = 0,
+                OffsetX = 0,
 
                 Zoom = 1.0f,
                 ZoomSpeed = 10.0f,
@@ -82,19 +97,21 @@ namespace Timeline_Project
                     "\\Fonts\\OptimusPrinceps.ttf"),
 
                 EventTextCharacterSize = 25,
-                EventBackgroundColor = new Color(230, 230, 230),
 
                 EventFromLineHeight = 70,
 
                 MarkerInterval = 60,
                 minMarkerInterval = 100,
                 MarkerHeight = 14,
-                BackgroundColor = new Color(255, 253, 244),
                 ScrollSpeed = 5f
             };
 
-            model.AddEvent(new TimelineEvent("Test event", 2));
-            model.AddEvent(new TimelineEvent("Test event 2", -5.25f));
+            model.AddEvent(new EventModel("Test event", 2));
+            model.AddEvent(new EventModel("Test event 2", -5.25f));
+
+            this.CreateRenderWindow();
+
+            model.OffsetX = this._renderWindow.Size.X / 2;
         }
 
         private void CreateRenderWindow()
@@ -108,17 +125,25 @@ namespace Timeline_Project
             var context = new ContextSettings { DepthBits = 24 };
             this._renderWindow = new RenderWindow(DrawSurface.Handle, context);
             this._renderWindow.SetActive(true);
+
+            UpdateWindow();
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            UpdateWindow();
+
             Thread backgroundThread = new Thread(() =>
                 {
                     while (_renderWindow.IsOpen)
                     {
                         System.Windows.Application.Current?.Dispatcher.Invoke(DispatcherPriority.Loaded, new Action(() =>
                         {
-                            UpdateWindow();
+                            bool Update = 
+                                IsMouseDown ||
+                                KeyPressed_W || KeyPressed_A || KeyPressed_S || KeyPressed_D;
+                            
+                            if(Update) UpdateWindow();
                         }
                         ));
                     }
@@ -133,7 +158,7 @@ namespace Timeline_Project
             this._renderWindow.DispatchEvents();
 
             //      Clear Screen
-            this._renderWindow.Clear(model.BackgroundColor);
+            this._renderWindow.Clear(model.theme.BackgroundColor);
 
             //      Draw Screen
             // SCROLL SCREEN
@@ -152,11 +177,13 @@ namespace Timeline_Project
             model.DrawEvents(this._renderWindow);
 
             // DRAW DEBUG INFO
-            model.DrawDebugNumber("Zoom: ", (float)model.Zoom, this._renderWindow, 220);
-            model.DrawDebugNumber("Focus: ", this._renderWindow.HasFocus() ? 1 : 0, this._renderWindow, 280);
+            //model.DrawDebugNumber("Zoom: ", (float)model.Zoom, this._renderWindow, 220);
+            //model.DrawDebugNumber("Focus: ", this._renderWindow.HasFocus() ? 1 : 0, this._renderWindow, 280);
+
+            model.DrawDebugNumber("Column Visible: ", IsUtilColumnVisible ? 1 : 0, this._renderWindow, 120);
 
             // PAN SCREEN
-            if(MouseDown)
+            if(IsMouseDown)
             {
                 float CurrMouseX = Mouse.GetPosition().X - _renderWindow.Position.X;
                 float CurrMouseY = Mouse.GetPosition().Y - _renderWindow.Position.Y;
@@ -176,13 +203,6 @@ namespace Timeline_Project
             this._renderWindow.Display();
         }
 
-        private void Button_Click_Random_Color(object sender, RoutedEventArgs e)
-        {
-            var rand = new Random();
-            var color = new Color((byte)rand.Next(), (byte)rand.Next(), (byte)rand.Next());
-            model.BackgroundColor = color;
-        }
-
         private void DrawSurface_SizeChanged(object sender, EventArgs e)
         {
             this.CreateRenderWindow();
@@ -190,8 +210,10 @@ namespace Timeline_Project
 
         private void Button_Click_New_Event(object sender, RoutedEventArgs e)
         {
-            model.AddEvent(new TimelineEvent("Button Event", c));
-            c += 4;
+            //model.AddEvent(new EventModel("Button Event", c));
+            //c += 4;
+
+            IsUtilColumnVisible = !IsUtilColumnVisible;
         }
 
         private void DrawSurface_KeyDown(object sender, System.Windows.Forms.KeyEventArgs e)
@@ -217,7 +239,7 @@ namespace Timeline_Project
 
                 // Keyboard Shortcuts
                 case 'N':
-                    model.AddEvent(new TimelineEvent("Shortcut Event", c));
+                    model.AddEvent(new EventModel("Shortcut Event", c));
                     c += 4;
                     break;
             }
@@ -259,11 +281,13 @@ namespace Timeline_Project
             float newDelta = (1 + (Math.Sign(e.Delta) * model.ZoomSpeed / 100)) * oldDelta;
 
             model.OffsetX += oldDelta - newDelta;
+
+            UpdateWindow();
         }
 
         private void DrawSurface_MouseDown(object sender, System.Windows.Forms.MouseEventArgs e)
         {
-            MouseDown = true;
+            IsMouseDown = true;
 
             PrevMouseX = Mouse.GetPosition().X - _renderWindow.Position.X;
             PrevMouseY = Mouse.GetPosition().Y - _renderWindow.Position.Y;
@@ -271,13 +295,53 @@ namespace Timeline_Project
 
         private void DrawSurface_MouseUp(object sender, System.Windows.Forms.MouseEventArgs e)
         {
-            MouseDown = false;
+            IsMouseDown = false;
         }
 
         private void DrawSurface_DoubleClick(object sender, EventArgs e)
         {
-            model.AddEvent(new TimelineEvent("Double-Click Event", c));
+            model.AddEvent(new EventModel("Double-Click Event", c));
             c += 4;
+        }
+
+        private void DrawSurface_LostFocus(object sender, EventArgs e)
+        {
+            //Keep focus on the render window when WPF controls are used
+            DrawSurface.Focus();
+        }
+
+        private void MenuItem_Click_NewEvent(object sender, RoutedEventArgs e)
+        {
+            //model.AddEvent(new TimelineEvent("Menu Event", c));
+            //c += 4;
+
+            //Window eventWindow = new Window(new VideoMode(800, 600), "New Event");
+        }
+
+        private void ChangeTheme(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Controls.MenuItem src = (System.Windows.Controls.MenuItem)e.Source;
+
+            switch(src.Name)
+            {
+                case "Beige":
+                    model.theme = new ThemeBeige();
+                    break;
+
+                case "Blue":
+                    model.theme = new ThemeBlue();
+                    break;
+
+                case "Green":
+                    model.theme = new ThemeGreen();
+                    break;
+
+                default:
+                    model.theme = new ThemeGreen();
+                    break;
+            }
+
+            UpdateWindow();
         }
     }
 }

@@ -8,13 +8,35 @@
         mc:Ignorable="d"
         Loaded="Window_Loaded"
         Closing="Window_Closing"
+        DataContext=""
         Title="MainWindow" Height="800" Width="1200">
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            
+            <ColumnDefinition>
+                <ColumnDefinition.Style>
+                    <Style TargetType="ColumnDefinition">
+                        <Setter Property="Width" Value="250" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsUtilColumnVisible}" Value="False">
+                                <Setter Property="Width" Value="0" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ColumnDefinition.Style>
+            </ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        
         <Grid.RowDefinitions>
             <RowDefinition Height="20"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
+
+        <Button Grid.Column="1" Grid.Row="1" Content="Add Event" Width="80" Height="30" VerticalAlignment="Top" Margin="0, 60, 0, 0"/>
+
+
 
         <DockPanel Grid.Row="0"  Width="Auto">
             <Menu DockPanel.Dock="Top" Background="White">
@@ -29,21 +51,23 @@
                 <MenuItem Header="Edit">
                     <MenuItem Header="Copy" />
                     <MenuItem Header="Paste" />
-                    <MenuItem Header="New Event" />
+                    <MenuItem Header="New Event" Click="MenuItem_Click_NewEvent"/>
                     <MenuItem Header="Options" />
                 </MenuItem>
 
                 <MenuItem Header="View">
-                    <MenuItem Header="Show Guidelines" />
-                    <Separator />
-                    <MenuItem Header="Themes" />
+                    <MenuItem Header="Themes">
+                        <MenuItem Name="Blue" Header="Ocean" Click="ChangeTheme"/>
+                        <MenuItem Name="Beige" Header="Parchment" Click="ChangeTheme"/>
+                        <MenuItem Name="Green" Header="Forest" Click="ChangeTheme"/>
+                    </MenuItem>
                 </MenuItem>
             </Menu>
         </DockPanel>
 
         <WindowsFormsHost Grid.Row="1">
             <WindowsFormsHost.Child>
-                <TimelineProject:SfmlDrawingSurface 
+                <TimelineProject:SfmlDrawingSurface
                     x:Name="DrawSurface" 
                     SizeChanged="DrawSurface_SizeChanged" 
                     KeyDown="DrawSurface_KeyDown"
@@ -52,11 +76,11 @@
                     MouseDown="DrawSurface_MouseDown"
                     MouseUp="DrawSurface_MouseUp"
                     DoubleClick="DrawSurface_DoubleClick"
+                    LostFocus="DrawSurface_LostFocus"
                     />
             </WindowsFormsHost.Child>
         </WindowsFormsHost>
 
-        <Button Grid.Row="2" Click="Button_Click_Random_Color" Content="Random Color" Width="85" HorizontalAlignment="Left" Margin="4" />
         <Button Grid.Row="2" Click="Button_Click_New_Event" Content="New Event" Width="70" HorizontalAlignment="Left" Margin="94, 4, 4, 4" />
     </Grid>
 </Window>
