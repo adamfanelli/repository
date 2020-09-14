@@ -42,12 +42,23 @@ namespace TimelineLib
         public bool IsSideColumnVisible
         {
             get { return isSideColumnVisible; }
-            set
-            {
-                isSideColumnVisible = value;
-                NotifyPropertyChanged();
-            }
+            set { isSideColumnVisible = value; NotifyPropertyChanged(); }
         }
+
+        private string newEventName;
+        public string NewEventName
+        {
+            get { return newEventName; }
+            set { newEventName = value; NotifyPropertyChanged(); }
+        }
+
+        private int newEventYear;
+        public int NewEventYear
+        {
+            get { return newEventYear; }
+            set { newEventYear = value; NotifyPropertyChanged(); }
+        }
+
 
         public int YearAtMouse { get; set; }
 

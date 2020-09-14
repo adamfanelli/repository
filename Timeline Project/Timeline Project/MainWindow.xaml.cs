@@ -52,8 +52,6 @@ namespace Timeline_Project
 
         public bool UpdateFlag = false;
 
-        public string WindowTitle { get; set; }
-
 
         public MainWindow()
         {
@@ -207,8 +205,14 @@ namespace Timeline_Project
             this._renderWindow.Display();
         }
 
-        public void ToggleSideColumn()
+        public void ToggleNewEventForm()
         {
+            if(!model.IsSideColumnVisible)
+            {
+                model.NewEventName = "New Event";
+                model.NewEventYear = model.YearAtMouse;
+            }
+
             model.IsSideColumnVisible = !model.IsSideColumnVisible;
             UpdateFlag = true;
         }
@@ -302,12 +306,12 @@ namespace Timeline_Project
 
         private void DrawSurface_DoubleClick(object sender, EventArgs e)
         {
-            ToggleSideColumn();
+            ToggleNewEventForm();
         }
 
         private void MenuItem_Click_NewEvent(object sender, RoutedEventArgs e)
         {
-            ToggleSideColumn();
+            ToggleNewEventForm();
         }
 
         private void On_ThemeChange(object sender, RoutedEventArgs e)
@@ -336,6 +340,17 @@ namespace Timeline_Project
             DrawSurface.Focus();
 
             UpdateWindow();
+        }
+
+        private void Button_Click_NewEvent(object sender, RoutedEventArgs e)
+        {
+            SubmitNewEvent();
+        }
+
+        private void SubmitNewEvent()
+        {
+            ToggleNewEventForm();
+            model.AddEvent(new EventModel(model.NewEventName, model.NewEventYear));
         }
     }
 }

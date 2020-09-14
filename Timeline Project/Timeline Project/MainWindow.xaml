@@ -38,17 +38,19 @@
         
         <!--New Event Form-->
         <StackPanel Grid.Column="1" Grid.Row="1" Margin="20">
-            <TextBlock Text="New Event" Margin="0, 0, 0, 20"/>
+            <TextBlock Margin="0, 0, 0, 20">
+                <Bold>New Event</Bold>
+            </TextBlock>
             
 
             <Label Content="Name"/>
-            <TextBox Width="auto"/>
+            <TextBox Width="auto" Text="{Binding NewEventName}" Height="25" Margin="0,0,-0.4,0"/>
 
             <Label Content="Year"/>
-            <TextBox Width="100" HorizontalAlignment="Left"/>
+            <TextBox Width="100"  Text="{Binding NewEventYear}" Height="25" HorizontalAlignment="Left"/>
 
 
-            <Button Content="Add Event" Width="80" Height="30" VerticalAlignment="Top" Margin="0, 60, 0, 0"/>
+            <Button Content="Add Event" Click="Button_Click_NewEvent" Width="80" Height="30" VerticalAlignment="Top" Margin="0, 60, 0, 0"/>
         </StackPanel>
 
 
