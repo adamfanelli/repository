@@ -135,7 +135,7 @@ namespace Timeline_Project
                                 (Mouse.GetPosition().X - _renderWindow.Position.X - model.OffsetX) / (model.IntervalLengthPx * model.Zoom));
 
                             // DEBUG: Print Zoom
-                            Debug.Print(model.Zoom.ToString());
+                           // Debug.Print(model.Zoom.ToString());
                             
 
                             // Update Window
@@ -294,12 +294,21 @@ namespace Timeline_Project
         {
             model.ScrollCount += Math.Sign(e.Delta);
 
-            model.Zoom = (float) Math.Pow(1 + (model.ZoomSpeed/100 * Math.Sign(model.ScrollCount)), Math.Abs(model.ScrollCount));
+            //Cap Zoom
+            if (model.ScrollCount < -132) model.ScrollCount = -132;
 
-            float oldDelta = (Mouse.GetPosition().X - this._renderWindow.Position.X) - model.OffsetX;
-            float newDelta = (1 + (Math.Sign(e.Delta) * model.ZoomSpeed / 100)) * oldDelta;
+            double oldZoom = model.Zoom;
+            model.Zoom = (float)Math.Pow(1 + (model.ZoomSpeed / 100 * Math.Sign(model.ScrollCount)), Math.Abs(model.ScrollCount));
 
-            model.OffsetX += oldDelta - newDelta;
+            double oldDelta = (Mouse.GetPosition().X - this._renderWindow.Position.X) - model.OffsetX;
+            double newDelta = oldDelta * (model.Zoom / oldZoom);
+
+            Debug.Print("Added to XOffset: " + (oldDelta - newDelta).ToString());
+            Debug.Print("Scroll Count: " + model.ScrollCount.ToString());
+
+            //float newDelta = (1 + (Math.Sign(e.Delta) * model.ZoomSpeed / 100)) * oldDelta;
+
+            model.OffsetX += (float)(oldDelta - newDelta);
 
             UpdateWindow();
         }

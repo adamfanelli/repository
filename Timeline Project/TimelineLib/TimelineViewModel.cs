@@ -28,7 +28,7 @@ namespace TimelineLib
         public float IntervalThresholdPx { get; set; }
 
 
-        public float Zoom { get; set; }
+        public double Zoom { get; set; }
         public float ZoomSpeed { get; set; }
         public int ScrollCount { get; set; }
 
@@ -161,7 +161,7 @@ namespace TimelineLib
 
 
             int i = Interval;
-            float x = (Interval * IntervalLengthPx * Zoom);
+            double x = (Interval * IntervalLengthPx * Zoom);
 
 
             while (OffsetX + x < window.Size.X)
@@ -186,16 +186,16 @@ namespace TimelineLib
             }
         }
 
-        private void DrawMarker(RenderWindow window, float x, string label = "N/A", bool highlighted = false)
+        private void DrawMarker(RenderWindow window, double x, string label = "N/A", bool highlighted = false)
         {
             RectangleShape markerLine = new RectangleShape();
-            markerLine.Position = new Vector2f(x - LineThickness / 4, 0);
+            markerLine.Position = new Vector2f((float)x - LineThickness / 4, 0);
             markerLine.Size = new Vector2f(LineThickness / 2, window.Size.Y);
             markerLine.FillColor = Theme.TextColor - new Color(0, 0, 0, 240);
             window.Draw(markerLine);
 
             RectangleShape marker = new RectangleShape();
-            marker.Position = new Vector2f(x - LineThickness / 2, (LineTopY + LineThickness/2) - MarkerHeight / 2);
+            marker.Position = new Vector2f((float)x - LineThickness / 2, (LineTopY + LineThickness/2) - MarkerHeight / 2);
             marker.Size = new Vector2f(LineThickness, MarkerHeight);
             marker.FillColor = Theme.LineColor;
             window.Draw(marker);
@@ -236,7 +236,7 @@ namespace TimelineLib
             foreach (EventModel e in ListOfEvents)
             {
                 // Set X
-                float x = OffsetX + (IntervalLengthPx * Zoom) * e.StartYear;
+                double x = OffsetX + (IntervalLengthPx * Zoom) * e.StartYear;
 
                 // Create Text
                 Text text = new Text(e.Name, PrimaryFont);
@@ -258,7 +258,7 @@ namespace TimelineLib
                 
 
                 // Set position of text
-                text.Position = new Vector2f(x - text.GetLocalBounds().Width/2, LineTopY - (level * EventFromLineHeight) - text.GetLocalBounds().Height + EventBgMargin);
+                text.Position = new Vector2f((float)x - text.GetLocalBounds().Width/2, LineTopY - (level * EventFromLineHeight) - text.GetLocalBounds().Height + EventBgMargin);
 
                 // Background Rectangle
                 RectangleShape textBg = new RectangleShape();
