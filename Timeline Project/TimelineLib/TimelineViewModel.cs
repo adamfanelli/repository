@@ -9,6 +9,8 @@ using TimelineLib;
 using TimelineLib.Themes;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Linq;
+using System.Diagnostics;
 
 namespace TimelineLib
 {
@@ -28,10 +30,14 @@ namespace TimelineLib
 
         public float Zoom { get; set; }
         public float ZoomSpeed { get; set; }
+        public int ScrollCount { get; set; }
+
         public float ScrollSpeed { get; set; }
 
         public float EventFromLineHeight { get; set; }
+        public float MinEventWidth { get; set; }
         public float MarkerHeight { get; set; }
+        public float EventBgMargin { get; set; }
         public uint EventTextCharacterSize { get; set; }
         public uint MarkerCharacterSize { get; set; }
         public uint MarkerHighlightedCharacterSize { get; set; }
@@ -65,7 +71,7 @@ namespace TimelineLib
 
         public float OffsetX { get; set; }
         public float OffsetY { get; set; }
-        public float LineY { get; set; }
+        public float LineTopY { get; set; }
         public Font PrimaryFont { get; set; }
         public Font SecondaryFont { get; set; }
 
@@ -99,13 +105,14 @@ namespace TimelineLib
         public void AddEvent(EventModel e)
         {
             ListOfEvents.Add(e);
+            ListOfEvents = ListOfEvents.OrderBy(x => x.StartYear).ToList();
         }
 
         public void DrawLine(RenderWindow window)
         {
-            LineY = window.Size.Y / 2 + 50 + OffsetY;
+            LineTopY = window.Size.Y / 2 + 50 + OffsetY;
             Line.FillColor = Theme.LineColor;
-            Line.Position = new Vector2f(0, LineY - LineThickness / 2);
+            Line.Position = new Vector2f(0, LineTopY);
             Line.Size = new Vector2f(window.Size.X, LineThickness);
             window.Draw(Line);
         }
@@ -188,7 +195,7 @@ namespace TimelineLib
             window.Draw(markerLine);
 
             RectangleShape marker = new RectangleShape();
-            marker.Position = new Vector2f(x - LineThickness / 2, LineY - MarkerHeight / 2);
+            marker.Position = new Vector2f(x - LineThickness / 2, (LineTopY + LineThickness/2) - MarkerHeight / 2);
             marker.Size = new Vector2f(LineThickness, MarkerHeight);
             marker.FillColor = Theme.LineColor;
             window.Draw(marker);
@@ -219,22 +226,48 @@ namespace TimelineLib
 
         public void DrawEvents(RenderWindow window)
         {
+            int level = 1;
+            float prevX = 0;
+
+            List<Shape> ShapesToDraw = new List<Shape>();
+            List<Text> TextToDraw = new List<Text>();
+            List<VertexArray> VertexArraysToDraw = new List<VertexArray>();
+
             foreach (EventModel e in ListOfEvents)
             {
+                // Set X
                 float x = OffsetX + (IntervalLengthPx * Zoom) * e.StartYear;
-                float y = LineY - EventFromLineHeight;
 
-                // Text
+                // Create Text
                 Text text = new Text(e.Name, PrimaryFont);
                 text.CharacterSize = EventTextCharacterSize;
-                text.Position = new Vector2f((int)(x - text.GetLocalBounds().Width / 2), y);
                 text.FillColor = Theme.TextColor;
+
+                // Set Level
+                if(e != ListOfEvents.First())
+                {
+                    if (x - text.GetLocalBounds().Width / 2 - EventBgMargin < prevX)
+                    {
+                        level++;
+                    }
+                    else
+                    {
+                        level = 1;
+                    }
+                }
+                
+
+                // Set position of text
+                text.Position = new Vector2f(x - text.GetLocalBounds().Width/2, LineTopY - (level * EventFromLineHeight) - text.GetLocalBounds().Height + EventBgMargin);
 
                 // Background Rectangle
                 RectangleShape textBg = new RectangleShape();
                 textBg.FillColor = Theme.EventBackgroundColor;
-                textBg.Position = new Vector2f(text.Position.X - 5, text.Position.Y - 5);
-                textBg.Size = new Vector2f(text.GetLocalBounds().Width + 13, text.GetLocalBounds().Height + 20);
+                textBg.Position = new Vector2f(text.Position.X - EventBgMargin, text.Position.Y - 5);
+                textBg.Size = new Vector2f(text.GetLocalBounds().Width + EventBgMargin * 2, text.GetLocalBounds().Height + 20);
+
+                // Set PrevX
+                prevX = textBg.Position.X + textBg.Size.X;
 
                 // Triangle
                 VertexArray triangle = new VertexArray(PrimitiveType.Triangles, 3);
@@ -244,15 +277,56 @@ namespace TimelineLib
                 
                 // Connector Triangle
                 VertexArray connectorTriangle = new VertexArray(PrimitiveType.Triangles, 3);
-                connectorTriangle[0] = new Vertex(new Vector2f(text.Position.X + text.GetLocalBounds().Width / 2 - 8, (LineY - LineThickness/2) - 8), Theme.TextColor);
-                connectorTriangle[1] = new Vertex(new Vector2f(text.Position.X + text.GetLocalBounds().Width / 2 + 8, (LineY - LineThickness / 2) - 8), Theme.TextColor);
-                connectorTriangle[2] = new Vertex(new Vector2f(text.Position.X + text.GetLocalBounds().Width / 2, (LineY - LineThickness / 2)), Theme.TextColor);
+                connectorTriangle[0] = new Vertex(new Vector2f(text.Position.X + text.GetLocalBounds().Width / 2 - 8, LineTopY - 8), Theme.TextColor);
+                connectorTriangle[1] = new Vertex(new Vector2f(text.Position.X + text.GetLocalBounds().Width / 2 + 8, LineTopY - 8), Theme.TextColor);
+                connectorTriangle[2] = new Vertex(new Vector2f(text.Position.X + text.GetLocalBounds().Width / 2, LineTopY), Theme.TextColor);
 
-                window.Draw(textBg);
-                window.Draw(triangle);
-                window.Draw(text);
-                window.Draw(connectorTriangle);
+                // Connector Dashed Line    (draw noDashes dashes per level)
+                int noDashes = 4;
+                int dashThickness = 2;
+
+                for(int i = 0; i < noDashes * level; i++)
+                {
+                    RectangleShape dash = new RectangleShape();
+                    dash.FillColor = Theme.TextColor;
+
+                    float bottomOfTextBox = LineTopY - EventFromLineHeight * level;
+
+                    dash.Position = new Vector2f(
+                        text.Position.X + text.GetLocalBounds().Width / 2 - dashThickness/2,
+
+                        bottomOfTextBox + i * ((LineTopY - bottomOfTextBox) / (noDashes * level))                                          // i * ((EventFromLineHeight * level) / (noDashes * level))
+
+                        );
+                    dash.Size = new Vector2f(
+                        dashThickness,
+                        (LineTopY - bottomOfTextBox) / (noDashes * level * 2)
+                        );
+
+                    window.Draw(dash);
+                }
+
+                //window.Draw(textBg);
+                //window.Draw(triangle);
+                //window.Draw(text);
+                //window.Draw(connectorTriangle);
+
+                ShapesToDraw.Add(textBg);
+                VertexArraysToDraw.Add(triangle);
+                VertexArraysToDraw.Add(connectorTriangle);
+                TextToDraw.Add(text);
             }
+
+
+            foreach(Shape shape in ShapesToDraw)
+                window.Draw(shape);
+            
+            foreach(VertexArray vertexArray in VertexArraysToDraw)
+                window.Draw(vertexArray);
+            
+            foreach(Text text in TextToDraw)
+                window.Draw(text);
+
         }
     }
 }

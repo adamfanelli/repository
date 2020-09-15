@@ -50,7 +50,8 @@ namespace Timeline_Project
         public float PrevMouseX;
         public float PrevMouseY;
 
-        public bool UpdateFlag = false;
+        public float DefaultRefreshRate = 0.0005f;
+        public float RefreshCount = 0;
 
 
         public MainWindow()
@@ -68,8 +69,9 @@ namespace Timeline_Project
                 EventTextCharacterSize = 25,
                 MarkerCharacterSize = 14,
                 MarkerHighlightedCharacterSize = 18,
-                EventFromLineHeight = 70,
-
+                EventFromLineHeight = 60,
+                EventBgMargin = 5,
+                MinEventWidth = 40,
                 IntervalThresholdPx = 100,
                 IntervalLengthPx = 60,
                 MarkerHeight = 14,
@@ -98,6 +100,7 @@ namespace Timeline_Project
             this.DataContext = model;
 
             this.CreateRenderWindow();
+            
 
             model.OffsetX = this._renderWindow.Size.X / 2;
         }
@@ -131,19 +134,24 @@ namespace Timeline_Project
                             model.YearAtMouse = (int)Math.Round(
                                 (Mouse.GetPosition().X - _renderWindow.Position.X - model.OffsetX) / (model.IntervalLengthPx * model.Zoom));
 
-                            // Update Window, If Necessary
-                            bool Update; 
+                            // DEBUG: Print Zoom
+                            Debug.Print(model.Zoom.ToString());
+                            
 
-                            if (UpdateFlag)
+                            // Update Window
+                            bool Update;
+
+                            RefreshCount += DefaultRefreshRate;
+                            if (RefreshCount > 1.0)
                             {
                                 Update = true;
-                                UpdateFlag = false;
+                                RefreshCount = 0;
                             }
                             else
                             {
                                 Update =
-                                IsMouseDown ||
-                                KeyPressed_W || KeyPressed_A || KeyPressed_S || KeyPressed_D;
+                                    IsMouseDown ||
+                                    KeyPressed_W || KeyPressed_A || KeyPressed_S || KeyPressed_D;
                             }
                             
                             if(Update) UpdateWindow();
@@ -153,6 +161,8 @@ namespace Timeline_Project
                 });
 
             backgroundThread.Start();
+
+            DrawSurface.Focus();
         }
 
         private void UpdateWindow()
@@ -209,12 +219,14 @@ namespace Timeline_Project
         {
             if(!model.IsSideColumnVisible)
             {
-                model.NewEventName = "New Event";
+                model.NewEventName = "";
                 model.NewEventYear = model.YearAtMouse;
+                NameTextBox.Focus();
             }
 
             model.IsSideColumnVisible = !model.IsSideColumnVisible;
-            UpdateFlag = true;
+
+            UpdateWindow();
         }
 
         private void DrawSurface_SizeChanged(object sender, EventArgs e)
@@ -245,8 +257,8 @@ namespace Timeline_Project
 
                 // Keyboard Shortcuts
                 case 'N':
-                    model.AddEvent(new EventModel("Shortcut Event", model.YearAtMouse));
-                    UpdateWindow();
+                    e.SuppressKeyPress = true;
+                    ToggleNewEventForm();
                     break;
             }
         }
@@ -280,10 +292,11 @@ namespace Timeline_Project
 
         private void DrawSurface_MouseWheel(object sender, System.Windows.Forms.MouseEventArgs e)
         {
+            model.ScrollCount += Math.Sign(e.Delta);
+
+            model.Zoom = (float) Math.Pow(1 + (model.ZoomSpeed/100 * Math.Sign(model.ScrollCount)), Math.Abs(model.ScrollCount));
+
             float oldDelta = (Mouse.GetPosition().X - this._renderWindow.Position.X) - model.OffsetX;
-
-            model.Zoom *= 1 + (Math.Sign(e.Delta) * model.ZoomSpeed/100);
-
             float newDelta = (1 + (Math.Sign(e.Delta) * model.ZoomSpeed / 100)) * oldDelta;
 
             model.OffsetX += oldDelta - newDelta;
@@ -344,13 +357,36 @@ namespace Timeline_Project
 
         private void Button_Click_NewEvent(object sender, RoutedEventArgs e)
         {
-            SubmitNewEvent();
+            NewEventSubmitButton.Focus();
+            if (model.NewEventName != "") SubmitNewEvent();
         }
 
         private void SubmitNewEvent()
         {
+            NewEventSubmitButton.Focus();
+
             ToggleNewEventForm();
             model.AddEvent(new EventModel(model.NewEventName, model.NewEventYear));
+
+            DrawSurface.Focus();
+        }
+
+        private void TextBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Controls.TextBox textbox = (System.Windows.Controls.TextBox)e.Source;
+            textbox.SelectAll();
+        }
+
+        private void Button_Click_CancelNewEvent(object sender, RoutedEventArgs e)
+        {
+            if (model.IsSideColumnVisible) ToggleNewEventForm();
+
+            DrawSurface.Focus();
+        }
+
+        private void NameTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+
         }
     }
 }

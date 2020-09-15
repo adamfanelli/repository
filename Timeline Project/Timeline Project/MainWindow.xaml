@@ -10,6 +10,7 @@
         Closing="Window_Closing"
         MinHeight="600"
         MinWidth="800"
+        WindowState="Maximized"
         Title="Timeline Project" Height="800" Width="1200">
     <Grid>
         <Grid.RowDefinitions>
@@ -35,25 +36,43 @@
                 </ColumnDefinition.Style>
             </ColumnDefinition>
         </Grid.ColumnDefinitions>
-        
+
         <!--New Event Form-->
-        <StackPanel Grid.Column="1" Grid.Row="1" Margin="20">
-            <TextBlock Margin="0, 0, 0, 20">
+        <Grid Grid.Column="1" Grid.Row="1" Margin="20">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40" />
+                <RowDefinition Height="25"/>
+                <RowDefinition Height="25"/>
+                <RowDefinition Height="23"/>
+                <RowDefinition Height="25"/>
+                <RowDefinition Height="23"/>
+                <RowDefinition Height="120"/>
+            </Grid.RowDefinitions>
+
+            <Rectangle Grid.Row="0" Grid.ColumnSpan="2" Fill="WhiteSmoke"/>
+            
+            <TextBlock Grid.Row="0" Grid.ColumnSpan="2" VerticalAlignment="Center" HorizontalAlignment="Center">
                 <Bold>New Event</Bold>
             </TextBlock>
-            
-
-            <Label Content="Name"/>
-            <TextBox Width="auto" Text="{Binding NewEventName}" Height="25" Margin="0,0,-0.4,0"/>
-
-            <Label Content="Year"/>
-            <TextBox Width="100"  Text="{Binding NewEventYear}" Height="25" HorizontalAlignment="Left"/>
 
 
-            <Button Content="Add Event" Click="Button_Click_NewEvent" Width="80" Height="30" VerticalAlignment="Top" Margin="0, 60, 0, 0"/>
-        </StackPanel>
+            <Label Grid.Row="2" Grid.ColumnSpan="2" Content="Name" FontWeight="Bold"/>
+            <TextBox Grid.Row="3" Grid.ColumnSpan="2"  Width="auto"  FontSize="15" Name="NameTextBox" Text="{Binding NewEventName}" TextChanged="NameTextBox_TextChanged" />
+
+            <Label Grid.Row="4" Grid.ColumnSpan="2" Content="Year" FontWeight="Bold"/>
+            <TextBox Grid.Row="5" Grid.ColumnSpan="2" Width="100"  FontSize="15"  Name="YearTextBox" Text="{Binding NewEventYear}" GotFocus="TextBox_GotFocus"  HorizontalAlignment="Left"/>
 
 
+            <Button Grid.Row="6" Content="Add Event" Name="NewEventSubmitButton" IsDefault="true" Click="Button_Click_NewEvent" Width="80" Height="30"/>
+            <Button Grid.Row="6" Grid.Column="1" Content="Cancel" IsCancel="true" Click="Button_Click_CancelNewEvent" Width="80" Height="30"/>
+
+        </Grid>
 
         <DockPanel Grid.Row="0"  Width="Auto">
             <Menu DockPanel.Dock="Top" Background="White">
