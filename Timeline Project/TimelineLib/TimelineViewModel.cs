@@ -86,18 +86,52 @@ namespace TimelineLib
         public TimelineViewModel()
         {
             Line = new RectangleShape();
+
+            LineThickness = 4;
+            Zoom = 1.0f;
+            ZoomSpeed = 10.0f;
+
+            EventTextCharacterSize = 23;
+            MarkerCharacterSize = 15;
+            MarkerHighlightedCharacterSize = 18;
+            EventFromLineHeight = 60;
+            EventBgMargin = 5;
+            MinEventWidth = 40;
+            IntervalThresholdPx = 100;
+            IntervalLengthPx = 60;
+            MarkerHeight = 14;
+            ScrollSpeed = 5f;
+
+            PrimaryFont = new Font(Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName +
+            "\\Fonts\\GeosansLight.ttf");
+
+            SecondaryFont = new Font(Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName +
+            "\\Fonts\\OptimusPrinceps.ttf");
         }
 
         public void SetViewModel(TimelineModel t)
         {
             this.ListOfEvents = t.ListOfEvents;
-            this.Theme = t.Theme;
+            this.Theme = Theme.GetThemeByID(t.ThemeID);
             this.Title = t.Title;
-            this.PrimaryFont = t.PrimaryFont;
-            this.SecondaryFont = t.SecondaryFont;
+            //this.PrimaryFont = t.PrimaryFont;
+            //this.SecondaryFont = t.SecondaryFont;
 
             if (t.ListOfEvents == null) 
                 this.ListOfEvents = new List<EventModel>();
+        }
+
+        public TimelineModel ConvertToModel()
+        {
+            TimelineModel t = new TimelineModel();
+
+            t.ListOfEvents = this.ListOfEvents;
+            t.ThemeID = this.Theme.ID;
+            t.Title = this.Title;
+            //t.PrimaryFont = this.PrimaryFont;
+            //t.SecondaryFont = this.SecondaryFont;
+
+            return t;
         }
 
 
@@ -220,14 +254,14 @@ namespace TimelineLib
         {
             Text text = new Text(Title, SecondaryFont);
             text.Position = new Vector2f(20, 20);
-            text.FillColor = Theme.TextColor;
+            text.FillColor = Theme.TitleColor;
             renderWindow.Draw(text);
         }
 
         public void DrawEvents(RenderWindow window)
         {
-            int level = 1;
-            float prevX = 0;
+            // An array of the Previous X for each level
+            List<float> PrevX = new List<float>() { 0 };
 
             List<Shape> ShapesToDraw = new List<Shape>();
             List<Text> TextToDraw = new List<Text>();
@@ -244,18 +278,18 @@ namespace TimelineLib
                 text.FillColor = Theme.TextColor;
 
                 // Set Level
-                if(e != ListOfEvents.First())
+                int level = 1;
+
+                if (e != ListOfEvents.First())
                 {
-                    if (x - text.GetLocalBounds().Width / 2 - EventBgMargin < prevX)
+                    while(x - text.GetLocalBounds().Width / 2 - EventBgMargin - (text.GetLocalBounds().Height + 20)/2 < PrevX[level])
                     {
                         level++;
-                    }
-                    else
-                    {
-                        level = 1;
+
+                        if (level >= PrevX.Count) break;
                     }
                 }
-                
+
 
                 // Set position of text
                 text.Position = new Vector2f((float)x - text.GetLocalBounds().Width/2, LineTopY - (level * EventFromLineHeight) - text.GetLocalBounds().Height + EventBgMargin);
@@ -266,8 +300,26 @@ namespace TimelineLib
                 textBg.Position = new Vector2f(text.Position.X - EventBgMargin, text.Position.Y - 5);
                 textBg.Size = new Vector2f(text.GetLocalBounds().Width + EventBgMargin * 2, text.GetLocalBounds().Height + 20);
 
+                // Background Circular Borders
+                CircleShape lCircle = new CircleShape();
+                lCircle.FillColor = Theme.EventBackgroundColor;
+                lCircle.Radius = textBg.Size.Y / 2;
+                lCircle.Position = new Vector2f(textBg.Position.X - lCircle.Radius, text.Position.Y - 5);
+                ShapesToDraw.Add(lCircle);
+
+                CircleShape rCircle = new CircleShape();
+                rCircle.FillColor = Theme.EventBackgroundColor;
+                rCircle.Radius = textBg.Size.Y / 2;
+                rCircle.Position = new Vector2f(textBg.Position.X + textBg.Size.X - rCircle.Radius, text.Position.Y - 5);
+                ShapesToDraw.Add(rCircle);
+
                 // Set PrevX
-                prevX = textBg.Position.X + textBg.Size.X;
+                float prevx = textBg.Position.X + textBg.Size.X + rCircle.Radius;
+
+                if (level >= PrevX.Count)
+                    PrevX.Add(prevx);
+                else
+                    PrevX[level] = prevx;
 
                 // Triangle
                 VertexArray triangle = new VertexArray(PrimitiveType.Triangles, 3);
@@ -306,11 +358,6 @@ namespace TimelineLib
                     window.Draw(dash);
                 }
 
-                //window.Draw(textBg);
-                //window.Draw(triangle);
-                //window.Draw(text);
-                //window.Draw(connectorTriangle);
-
                 ShapesToDraw.Add(textBg);
                 VertexArraysToDraw.Add(triangle);
                 VertexArraysToDraw.Add(connectorTriangle);
@@ -318,7 +365,9 @@ namespace TimelineLib
             }
 
 
-            foreach(Shape shape in ShapesToDraw)
+            Debug.Print(PrevX.Count.ToString());
+
+            foreach (Shape shape in ShapesToDraw)
                 window.Draw(shape);
             
             foreach(VertexArray vertexArray in VertexArraysToDraw)

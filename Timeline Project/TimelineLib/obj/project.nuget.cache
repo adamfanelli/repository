@@ -1,12 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "8ntab0yeGZv+3xRwUIMPbyd4j4Z/TQ7iOgMuqcRhJoo23foQsVdxsD01BoeWUOKWXvMJjLYp3ZB4ZR+FrrWk2g==",
+  "dgSpecHash": "+RSWw6GZXFYfVuJNP5N2U1Pvwf0yaQyuBhc6KNjY9x+G/LBf3E+ps8Ie0WRaoGObOsoAe2Iu808HBmayo+2Lzg==",
   "success": true,
   "projectFilePath": "D:\\dev\\repository\\Timeline Project\\TimelineLib\\TimelineLib.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\afane\\.nuget\\packages\\csfml\\2.5.0\\csfml.2.5.0.nupkg.sha512",
     "C:\\Users\\afane\\.nuget\\packages\\microsoft.netcore.platforms\\1.1.0\\microsoft.netcore.platforms.1.1.0.nupkg.sha512",
     "C:\\Users\\afane\\.nuget\\packages\\netstandard.library\\2.0.3\\netstandard.library.2.0.3.nupkg.sha512",
+    "C:\\Users\\afane\\.nuget\\packages\\newtonsoft.json\\12.0.3\\newtonsoft.json.12.0.3.nupkg.sha512",
     "C:\\Users\\afane\\.nuget\\packages\\sfml.audio\\2.5.0\\sfml.audio.2.5.0.nupkg.sha512",
     "C:\\Users\\afane\\.nuget\\packages\\sfml.graphics\\2.5.0\\sfml.graphics.2.5.0.nupkg.sha512",
     "C:\\Users\\afane\\.nuget\\packages\\sfml.net\\2.5.0\\sfml.net.2.5.0.nupkg.sha512",

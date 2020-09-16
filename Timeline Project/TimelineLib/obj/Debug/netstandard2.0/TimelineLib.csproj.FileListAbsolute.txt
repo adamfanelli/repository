@@ -4,7 +4,6 @@ D:\dev\repository\Timeline Project\TimelineLib\obj\Debug\netstandard2.0\Timeline
 D:\dev\repository\Timeline Project\TimelineLib\obj\Debug\netstandard2.0\TimelineLib.AssemblyInfoInputs.cache
 D:\dev\repository\Timeline Project\TimelineLib\obj\Debug\netstandard2.0\TimelineLib.AssemblyInfo.cs
 D:\dev\repository\Timeline Project\TimelineLib\bin\Debug\netstandard2.0\TimelineLib.pdb
-D:\dev\repository\Timeline Project\TimelineLib\obj\Debug\netstandard2.0\TimelineLib.csproj.CoreCompileInputs.cache
 D:\dev\repository\Timeline Project\TimelineLib\obj\Debug\netstandard2.0\TimelineLib.dll
 D:\dev\repository\Timeline Project\TimelineLib\obj\Debug\netstandard2.0\TimelineLib.pdb
 C:\repository\repository\Timeline Project\TimelineLib\bin\Debug\netstandard2.0\TimelineLib.deps.json
@@ -16,3 +15,4 @@ C:\repository\repository\Timeline Project\TimelineLib\obj\Debug\netstandard2.0\T
 C:\repository\repository\Timeline Project\TimelineLib\obj\Debug\netstandard2.0\TimelineLib.csproj.CoreCompileInputs.cache
 C:\repository\repository\Timeline Project\TimelineLib\obj\Debug\netstandard2.0\TimelineLib.dll
 C:\repository\repository\Timeline Project\TimelineLib\obj\Debug\netstandard2.0\TimelineLib.pdb
+D:\dev\repository\Timeline Project\TimelineLib\obj\Debug\netstandard2.0\TimelineLib.csproj.CoreCompileInputs.cache

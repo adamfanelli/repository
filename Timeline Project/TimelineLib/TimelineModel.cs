@@ -13,9 +13,10 @@ namespace TimelineLib
     {
         public List<EventModel> ListOfEvents { get; set; }
 
-        public Theme Theme { get; set; }
-        public Font PrimaryFont { get; set; }
-        public Font SecondaryFont { get; set; }
+        public int ThemeID { get; set; }
+
+        //public string PrimaryFontName { get; set; }
+        //public string SecondaryFontName { get; set; }
 
         public string Title { get; set; }
     }

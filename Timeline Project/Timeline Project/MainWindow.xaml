@@ -69,8 +69,8 @@
             <TextBox Grid.Row="5" Grid.ColumnSpan="2" Width="100"  FontSize="15"  Name="YearTextBox" Text="{Binding NewEventYear}" GotFocus="TextBox_GotFocus"  HorizontalAlignment="Left"/>
 
 
-            <Button Grid.Row="6" Content="Add Event" Name="NewEventSubmitButton" IsDefault="true" Click="Button_Click_NewEvent" Width="80" Height="30"/>
-            <Button Grid.Row="6" Grid.Column="1" Content="Cancel" IsCancel="true" Click="Button_Click_CancelNewEvent" Width="80" Height="30"/>
+            <Button Grid.Row="6" Content="Add Event" Name="NewEventSubmitButton" IsDefault="true" Click="btnSubmitNewEvent_Click" Width="80" Height="30"/>
+            <Button Grid.Row="6" Grid.Column="1" Content="Cancel" IsCancel="true" Click="btnCancelNewEvent_Click" Width="80" Height="30"/>
 
         </Grid>
 
@@ -78,8 +78,8 @@
             <Menu DockPanel.Dock="Top" Background="White">
                 <MenuItem Header="File">
                     <MenuItem Header="New" />
-                    <MenuItem Header="Open" />
-                    <MenuItem Header="Save" />
+                    <MenuItem Header="Open" Click="btnOpenFile_Click" />
+                    <MenuItem Header="Save" Click="btnSaveFile_Click" />
                     <Separator />
                     <MenuItem Header="Exit" />
                 </MenuItem>
@@ -87,7 +87,7 @@
                 <MenuItem Header="Edit">
                     <MenuItem Header="Copy" />
                     <MenuItem Header="Paste" />
-                    <MenuItem Header="New Event" Click="MenuItem_Click_NewEvent"/>
+                    <MenuItem Header="New Event" Click="menuItemNewEvent_Click"/>
                     <MenuItem Header="Options" />
                 </MenuItem>
 
@@ -96,6 +96,7 @@
                         <MenuItem Name="Blue" Header="Ocean" Click="On_ThemeChange"/>
                         <MenuItem Name="Beige" Header="Parchment" Click="On_ThemeChange"/>
                         <MenuItem Name="Green" Header="Forest" Click="On_ThemeChange"/>
+                        <MenuItem Name="Dark" Header="Dark" Click="On_ThemeChange"/>
                     </MenuItem>
                 </MenuItem>
             </Menu>
@@ -112,6 +113,7 @@
                     MouseDown="DrawSurface_MouseDown"
                     MouseUp="DrawSurface_MouseUp"
                     DoubleClick="DrawSurface_DoubleClick"
+                    MouseClick="DrawSurface_MouseClick"
                     />
             </WindowsFormsHost.Child>
         </WindowsFormsHost>

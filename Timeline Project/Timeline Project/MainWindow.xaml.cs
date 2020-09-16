@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Microsoft.Win32;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -19,9 +20,9 @@ using System.Windows.Threading;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
+using System.Linq;
 using TimelineLib;
 using TimelineLib.Themes;
-
 using Color = SFML.Graphics.Color;
 using Keyboard = SFML.Window.Keyboard;
 using KeyEventArgs = SFML.Window.KeyEventArgs;
@@ -29,6 +30,9 @@ using Window = SFML.Window.Window;
 using Mouse = SFML.Window.Mouse;
 using System.Runtime.CompilerServices;
 using System.ComponentModel;
+using SaveFileDialog = Microsoft.Win32.SaveFileDialog;
+using Newtonsoft.Json;
+using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 
 namespace Timeline_Project
 {
@@ -58,50 +62,24 @@ namespace Timeline_Project
         {
             InitializeComponent();
 
-
             // Test ViewModel
-            model = new TimelineViewModel()
-            {
-                LineThickness = 4,
-                Zoom = 1.0f,
-                ZoomSpeed = 10.0f,
+            model = new TimelineViewModel();
 
-                EventTextCharacterSize = 25,
-                MarkerCharacterSize = 14,
-                MarkerHighlightedCharacterSize = 18,
-                EventFromLineHeight = 60,
-                EventBgMargin = 5,
-                MinEventWidth = 40,
-                IntervalThresholdPx = 100,
-                IntervalLengthPx = 60,
-                MarkerHeight = 14,
-                ScrollSpeed = 5f
-            };
-
-            // Test Model
+            // Create a Test Model
             model.SetViewModel(new TimelineModel()
             {
-                Title = "History of America",
-
-
-                PrimaryFont = new Font(Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName +
-                    "\\Fonts\\GeosansLight.ttf"),
-
-                SecondaryFont = new Font(Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName +
-                    "\\Fonts\\OptimusPrinceps.ttf"),
-
-                Theme = new ThemeBlue()
+                Title = "My Timeline",
+                ThemeID = 2
             });
 
-            model.AddEvent(new EventModel("Test event", 2));
-            model.AddEvent(new EventModel("Test event 2", -5.25f));
 
-
+            // Set the XAML DataContext
             this.DataContext = model;
 
+            // Create the Window
             this.CreateRenderWindow();
             
-
+            //Set the OffsetX to half the window width
             model.OffsetX = this._renderWindow.Size.X / 2;
         }
 
@@ -134,9 +112,11 @@ namespace Timeline_Project
                             model.YearAtMouse = (int)Math.Round(
                                 (Mouse.GetPosition().X - _renderWindow.Position.X - model.OffsetX) / (model.IntervalLengthPx * model.Zoom));
 
-                            // DEBUG: Print Zoom
-                           // Debug.Print(model.Zoom.ToString());
-                            
+                            // Event Hover
+                            foreach(EventModel n in model.ListOfEvents)
+                            {
+                                
+                            }
 
                             // Update Window
                             bool Update;
@@ -260,6 +240,13 @@ namespace Timeline_Project
                     e.SuppressKeyPress = true;
                     ToggleNewEventForm();
                     break;
+                        
+                case 'R':
+                    model.OffsetX = model.OffsetX = this._renderWindow.Size.X / 2;
+                    model.OffsetY = 0;
+                    model.Zoom = 1;
+                    model.ScrollCount = 0;
+                    break;
             }
         }
 
@@ -303,11 +290,6 @@ namespace Timeline_Project
             double oldDelta = (Mouse.GetPosition().X - this._renderWindow.Position.X) - model.OffsetX;
             double newDelta = oldDelta * (model.Zoom / oldZoom);
 
-            Debug.Print("Added to XOffset: " + (oldDelta - newDelta).ToString());
-            Debug.Print("Scroll Count: " + model.ScrollCount.ToString());
-
-            //float newDelta = (1 + (Math.Sign(e.Delta) * model.ZoomSpeed / 100)) * oldDelta;
-
             model.OffsetX += (float)(oldDelta - newDelta);
 
             UpdateWindow();
@@ -331,7 +313,7 @@ namespace Timeline_Project
             ToggleNewEventForm();
         }
 
-        private void MenuItem_Click_NewEvent(object sender, RoutedEventArgs e)
+        private void menuItemNewEvent_Click(object sender, RoutedEventArgs e)
         {
             ToggleNewEventForm();
         }
@@ -340,31 +322,14 @@ namespace Timeline_Project
         {
             System.Windows.Controls.MenuItem src = (System.Windows.Controls.MenuItem)e.Source;
 
-            switch(src.Name)
-            {
-                case "Beige":
-                    model.Theme = new ThemeBeige();
-                    break;
-
-                case "Blue":
-                    model.Theme = new ThemeBlue();
-                    break;
-
-                case "Green":
-                    model.Theme = new ThemeGreen();
-                    break;
-
-                default:
-                    model.Theme = new ThemeGreen();
-                    break;
-            }
+            model.Theme = Theme.GetThemeByName(src.Name);
 
             DrawSurface.Focus();
 
             UpdateWindow();
         }
 
-        private void Button_Click_NewEvent(object sender, RoutedEventArgs e)
+        private void btnSubmitNewEvent_Click(object sender, RoutedEventArgs e)
         {
             NewEventSubmitButton.Focus();
             if (model.NewEventName != "") SubmitNewEvent();
@@ -379,6 +344,12 @@ namespace Timeline_Project
 
             DrawSurface.Focus();
         }
+        private void btnCancelNewEvent_Click(object sender, RoutedEventArgs e)
+        {
+            if (model.IsSideColumnVisible) ToggleNewEventForm();
+
+            DrawSurface.Focus();
+        }
 
         private void TextBox_GotFocus(object sender, RoutedEventArgs e)
         {
@@ -386,16 +357,38 @@ namespace Timeline_Project
             textbox.SelectAll();
         }
 
-        private void Button_Click_CancelNewEvent(object sender, RoutedEventArgs e)
-        {
-            if (model.IsSideColumnVisible) ToggleNewEventForm();
-
-            DrawSurface.Focus();
-        }
-
         private void NameTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
 
+        }
+
+        private void btnSaveFile_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "Text file (*.txt)|*.txt";
+            if (saveFileDialog.ShowDialog() == true)
+                File.WriteAllText(saveFileDialog.FileName, JsonConvert.SerializeObject(model.ConvertToModel(), Formatting.Indented));
+        }
+
+        private void btnOpenFile_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
+            if (openFileDialog.ShowDialog() == true)
+            {
+                string json = File.ReadAllText(openFileDialog.FileName);
+
+                TimelineViewModel timelineViewModel = new TimelineViewModel();
+
+                timelineViewModel.SetViewModel(JsonConvert.DeserializeObject<TimelineModel>(json));
+
+                this.model = timelineViewModel;
+            }
+        }
+
+        private void DrawSurface_MouseClick(object sender, System.Windows.Forms.MouseEventArgs e)
+        {
+            Debug.Print("Click!");
         }
     }
 }
