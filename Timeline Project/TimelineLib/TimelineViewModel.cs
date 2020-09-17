@@ -31,6 +31,8 @@ namespace TimelineLib
         public double Zoom { get; set; }
         public float ZoomSpeed { get; set; }
         public int ScrollCount { get; set; }
+        public int ZoomMinCap { get; set; }
+        public int ZoomMaxCap { get; set; }
 
         public float ScrollSpeed { get; set; }
 
@@ -75,7 +77,7 @@ namespace TimelineLib
         public Font PrimaryFont { get; set; }
         public Font SecondaryFont { get; set; }
 
-        public List<EventModel> ListOfEvents { get; set; }
+        public List<EventViewModel> ListOfEvents { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
@@ -86,12 +88,16 @@ namespace TimelineLib
         public TimelineViewModel()
         {
             Line = new RectangleShape();
+            ListOfEvents = new List<EventViewModel>();
 
             LineThickness = 4;
             Zoom = 1.0f;
             ZoomSpeed = 10.0f;
+            ZoomMinCap = 12;
+            ZoomMaxCap = -132;
+            ScrollSpeed = 5f;
 
-            EventTextCharacterSize = 23;
+            EventTextCharacterSize = 24;
             MarkerCharacterSize = 15;
             MarkerHighlightedCharacterSize = 18;
             EventFromLineHeight = 60;
@@ -100,7 +106,6 @@ namespace TimelineLib
             IntervalThresholdPx = 100;
             IntervalLengthPx = 60;
             MarkerHeight = 14;
-            ScrollSpeed = 5f;
 
             PrimaryFont = new Font(Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName +
             "\\Fonts\\GeosansLight.ttf");
@@ -111,32 +116,37 @@ namespace TimelineLib
 
         public void SetViewModel(TimelineModel t)
         {
-            this.ListOfEvents = t.ListOfEvents;
+            if (t.EventModels != null)
+                foreach (EventModel e in t.EventModels)
+                {
+                    EventViewModel vm = new EventViewModel();
+                    vm.SetViewModel(e);
+                    this.ListOfEvents.Add(vm);
+                }
+
             this.Theme = Theme.GetThemeByID(t.ThemeID);
             this.Title = t.Title;
-            //this.PrimaryFont = t.PrimaryFont;
-            //this.SecondaryFont = t.SecondaryFont;
-
-            if (t.ListOfEvents == null) 
-                this.ListOfEvents = new List<EventModel>();
         }
 
-        public TimelineModel ConvertToModel()
+        public TimelineModel ConvertToSaveModel()
         {
             TimelineModel t = new TimelineModel();
+            t.EventModels = new List<EventModel>();
 
-            t.ListOfEvents = this.ListOfEvents;
+            foreach(EventViewModel e in ListOfEvents)
+            {
+                t.EventModels.Add(e.ConvertToSaveModel());
+            }
+
             t.ThemeID = this.Theme.ID;
             t.Title = this.Title;
-            //t.PrimaryFont = this.PrimaryFont;
-            //t.SecondaryFont = this.SecondaryFont;
 
             return t;
         }
 
 
 
-        public void AddEvent(EventModel e)
+        public void AddEvent(EventViewModel e)
         {
             ListOfEvents.Add(e);
             ListOfEvents = ListOfEvents.OrderBy(x => x.StartYear).ToList();
@@ -250,12 +260,18 @@ namespace TimelineLib
             window.Draw(t);
         }
 
-        public void DrawTitle(RenderWindow renderWindow)
+        public void DrawTitle(RenderWindow window)
         {
             Text text = new Text(Title, SecondaryFont);
             text.Position = new Vector2f(20, 20);
             text.FillColor = Theme.TitleColor;
-            renderWindow.Draw(text);
+            window.Draw(text);
+
+            //Draw Mouse Pos
+            Text mouseText = new Text((Mouse.GetPosition().X - window.Position.X) + ", " + (Mouse.GetPosition().Y - window.Position.Y), this.PrimaryFont);
+            mouseText.Position = new Vector2f(50, 50/*Mouse.GetPosition().X, Mouse.GetPosition().Y*/);
+            text.FillColor = Theme.TextColor;
+            window.Draw(mouseText);
         }
 
         public void DrawEvents(RenderWindow window)
@@ -267,10 +283,8 @@ namespace TimelineLib
             List<Text> TextToDraw = new List<Text>();
             List<VertexArray> VertexArraysToDraw = new List<VertexArray>();
 
-            foreach (EventModel e in ListOfEvents)
+            foreach (EventViewModel e in ListOfEvents)
             {
-                // Set X
-                double x = OffsetX + (IntervalLengthPx * Zoom) * e.StartYear;
 
                 // Create Text
                 Text text = new Text(e.Name, PrimaryFont);
@@ -280,9 +294,12 @@ namespace TimelineLib
                 // Set Level
                 int level = 1;
 
+                // Set X (center of event)
+                double x = OffsetX + (IntervalLengthPx * Zoom) * e.StartYear;
+
                 if (e != ListOfEvents.First())
                 {
-                    while(x - text.GetLocalBounds().Width / 2 - EventBgMargin - (text.GetLocalBounds().Height + 20)/2 < PrevX[level])
+                    while(x - text.GetLocalBounds().Width / 2 - EventBgMargin - text.GetLocalBounds().Height / 2 < PrevX[level])
                     {
                         level++;
 
@@ -290,42 +307,62 @@ namespace TimelineLib
                     }
                 }
 
+                // Set Y (top of event)
+                float y = LineTopY - (level * EventFromLineHeight) - text.GetLocalBounds().Height;
 
-                // Set position of text
-                text.Position = new Vector2f((float)x - text.GetLocalBounds().Width/2, LineTopY - (level * EventFromLineHeight) - text.GetLocalBounds().Height + EventBgMargin);
+                // Set Text Position
+                text.Position = new Vector2f((float)x - text.GetLocalBounds().Width/2, y + EventBgMargin);
 
                 // Background Rectangle
                 RectangleShape textBg = new RectangleShape();
-                textBg.FillColor = Theme.EventBackgroundColor;
                 textBg.Position = new Vector2f(text.Position.X - EventBgMargin, text.Position.Y - 5);
                 textBg.Size = new Vector2f(text.GetLocalBounds().Width + EventBgMargin * 2, text.GetLocalBounds().Height + 20);
 
                 // Background Circular Borders
                 CircleShape lCircle = new CircleShape();
-                lCircle.FillColor = Theme.EventBackgroundColor;
                 lCircle.Radius = textBg.Size.Y / 2;
                 lCircle.Position = new Vector2f(textBg.Position.X - lCircle.Radius, text.Position.Y - 5);
-                ShapesToDraw.Add(lCircle);
 
                 CircleShape rCircle = new CircleShape();
-                rCircle.FillColor = Theme.EventBackgroundColor;
                 rCircle.Radius = textBg.Size.Y / 2;
                 rCircle.Position = new Vector2f(textBg.Position.X + textBg.Size.X - rCircle.Radius, text.Position.Y - 5);
+
+                // Set ScreenPos of EventModel
+                e.ScreenPos = new Vector2f((float)x - textBg.Size.X / 2 - lCircle.Radius, y);
+                e.Size = new Vector2f(lCircle.Radius + textBg.Size.X + rCircle.Radius, textBg.Size.Y);
+
+                // Change background color on hover
+                Color bgColor =
+                    Mouse.GetPosition().X - window.Position.X > x - textBg.Size.X/2 - lCircle.Radius &&
+                    Mouse.GetPosition().X - window.Position.X < x + textBg.Size.X / 2 + lCircle.Radius &&
+                    Mouse.GetPosition().Y - window.Position.Y > y &&
+                    Mouse.GetPosition().Y - window.Position.Y < y + textBg.Size.Y
+                    ? Theme.EventHoverColor : Theme.EventBackgroundColor;
+
+                textBg.FillColor = bgColor;
+                lCircle.FillColor = bgColor;
+                rCircle.FillColor = bgColor;
+
+                // Background Triangle
+                VertexArray bgTriangle = new VertexArray(PrimitiveType.Triangles, 3);
+                bgTriangle[0] = new Vertex(new Vector2f(text.Position.X + text.GetLocalBounds().Width / 2 - 8, textBg.Position.Y + textBg.Size.Y), bgColor);
+                bgTriangle[1] = new Vertex(new Vector2f(text.Position.X + text.GetLocalBounds().Width / 2 + 8, textBg.Position.Y + textBg.Size.Y), bgColor);
+                bgTriangle[2] = new Vertex(new Vector2f(text.Position.X + text.GetLocalBounds().Width / 2, textBg.Position.Y + textBg.Size.Y + 8), bgColor);
+
+                VertexArraysToDraw.Add(bgTriangle);
+
+                ShapesToDraw.Add(textBg);
+                ShapesToDraw.Add(lCircle);
                 ShapesToDraw.Add(rCircle);
 
+
                 // Set PrevX
-                float prevx = textBg.Position.X + textBg.Size.X + rCircle.Radius;
+                float prevx = e.ScreenPos.X + e.Size.X;
 
                 if (level >= PrevX.Count)
                     PrevX.Add(prevx);
                 else
                     PrevX[level] = prevx;
-
-                // Triangle
-                VertexArray triangle = new VertexArray(PrimitiveType.Triangles, 3);
-                triangle[0] = new Vertex(new Vector2f(text.Position.X + text.GetLocalBounds().Width / 2 - 8, textBg.Position.Y + textBg.Size.Y), Theme.EventBackgroundColor);
-                triangle[1] = new Vertex(new Vector2f(text.Position.X + text.GetLocalBounds().Width / 2 + 8, textBg.Position.Y + textBg.Size.Y), Theme.EventBackgroundColor);
-                triangle[2] = new Vertex(new Vector2f(text.Position.X + text.GetLocalBounds().Width / 2, textBg.Position.Y + textBg.Size.Y + 8), Theme.EventBackgroundColor);
                 
                 // Connector Triangle
                 VertexArray connectorTriangle = new VertexArray(PrimitiveType.Triangles, 3);
@@ -336,7 +373,6 @@ namespace TimelineLib
                 // Connector Dashed Line    (draw noDashes dashes per level)
                 int noDashes = 4;
                 int dashThickness = 2;
-
                 for(int i = 0; i < noDashes * level; i++)
                 {
                     RectangleShape dash = new RectangleShape();
@@ -357,15 +393,9 @@ namespace TimelineLib
 
                     window.Draw(dash);
                 }
-
-                ShapesToDraw.Add(textBg);
-                VertexArraysToDraw.Add(triangle);
                 VertexArraysToDraw.Add(connectorTriangle);
                 TextToDraw.Add(text);
             }
-
-
-            Debug.Print(PrevX.Count.ToString());
 
             foreach (Shape shape in ShapesToDraw)
                 window.Draw(shape);

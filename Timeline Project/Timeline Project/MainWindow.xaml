@@ -63,7 +63,7 @@
 
 
             <Label Grid.Row="2" Grid.ColumnSpan="2" Content="Name" FontWeight="Bold"/>
-            <TextBox Grid.Row="3" Grid.ColumnSpan="2"  Width="auto"  FontSize="15" Name="NameTextBox" Text="{Binding NewEventName}" TextChanged="NameTextBox_TextChanged" />
+            <TextBox Grid.Row="3" Grid.ColumnSpan="2"  Width="auto"  FontSize="15" Name="NameTextBox" Text="{Binding NewEventName}"/>
 
             <Label Grid.Row="4" Grid.ColumnSpan="2" Content="Year" FontWeight="Bold"/>
             <TextBox Grid.Row="5" Grid.ColumnSpan="2" Width="100"  FontSize="15"  Name="YearTextBox" Text="{Binding NewEventYear}" GotFocus="TextBox_GotFocus"  HorizontalAlignment="Left"/>
@@ -77,7 +77,7 @@
         <DockPanel Grid.Row="0"  Width="Auto">
             <Menu DockPanel.Dock="Top" Background="White">
                 <MenuItem Header="File">
-                    <MenuItem Header="New" />
+                    <MenuItem Header="New" Click="btnNewFile_Click" />
                     <MenuItem Header="Open" Click="btnOpenFile_Click" />
                     <MenuItem Header="Save" Click="btnSaveFile_Click" />
                     <Separator />

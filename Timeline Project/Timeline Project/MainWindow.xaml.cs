@@ -20,7 +20,6 @@ using System.Windows.Threading;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
-using System.Linq;
 using TimelineLib;
 using TimelineLib.Themes;
 using Color = SFML.Graphics.Color;
@@ -48,6 +47,7 @@ namespace Timeline_Project
         public bool KeyPressed_A;
         public bool KeyPressed_S;
         public bool KeyPressed_D;
+        public bool KeyPressed_CTRL;
 
         public bool IsMouseDown = false;
 
@@ -62,25 +62,10 @@ namespace Timeline_Project
         {
             InitializeComponent();
 
-            // Test ViewModel
-            model = new TimelineViewModel();
+            // Load a new Timeline
+            LoadTimeline();
 
-            // Create a Test Model
-            model.SetViewModel(new TimelineModel()
-            {
-                Title = "My Timeline",
-                ThemeID = 2
-            });
-
-
-            // Set the XAML DataContext
-            this.DataContext = model;
-
-            // Create the Window
-            this.CreateRenderWindow();
-            
-            //Set the OffsetX to half the window width
-            model.OffsetX = this._renderWindow.Size.X / 2;
+            model.AddEvent(new EventViewModel("Test Event"));
         }
 
         private void CreateRenderWindow()
@@ -91,7 +76,7 @@ namespace Timeline_Project
                 this._renderWindow.Dispose();
             }
 
-            var context = new ContextSettings { DepthBits = 24 };
+            var context = new ContextSettings { DepthBits = 24, AntialiasingLevel = 50};
             this._renderWindow = new RenderWindow(DrawSurface.Handle, context);
             this._renderWindow.SetActive(true);
 
@@ -112,17 +97,12 @@ namespace Timeline_Project
                             model.YearAtMouse = (int)Math.Round(
                                 (Mouse.GetPosition().X - _renderWindow.Position.X - model.OffsetX) / (model.IntervalLengthPx * model.Zoom));
 
-                            // Event Hover
-                            foreach(EventModel n in model.ListOfEvents)
-                            {
-                                
-                            }
 
-                            // Update Window
                             bool Update;
 
+                            // Update Window
                             RefreshCount += DefaultRefreshRate;
-                            if (RefreshCount > 1.0)
+                            if (RefreshCount > 0.5)
                             {
                                 Update = true;
                                 RefreshCount = 0;
@@ -133,8 +113,13 @@ namespace Timeline_Project
                                     IsMouseDown ||
                                     KeyPressed_W || KeyPressed_A || KeyPressed_S || KeyPressed_D;
                             }
-                            
-                            if(Update) UpdateWindow();
+
+                            foreach (EventViewModel n in model.ListOfEvents)
+                            {
+                                if (n.IsMouseOver(_renderWindow)) Update = true;
+                            }
+
+                            if (Update) UpdateWindow();
                         }
                         ));
                     }
@@ -143,6 +128,38 @@ namespace Timeline_Project
             backgroundThread.Start();
 
             DrawSurface.Focus();
+        }
+
+        public void LoadTimeline(TimelineViewModel timelineViewModel = null)
+        {
+            // If no viewmodel is given, create a new viewmodel
+            if(timelineViewModel == null)
+            {
+                timelineViewModel = new TimelineViewModel();
+
+                timelineViewModel.SetViewModel(new TimelineModel()
+                {
+                    Title = "New Timeline",
+                    ThemeID = 3
+                });
+            }
+
+            this.model = null;
+
+            this.model = timelineViewModel;
+
+            // Set the XAML DataContext
+            this.DataContext = model;
+
+            // Create the Window
+            this.CreateRenderWindow();
+
+            // Set the OffsetX
+            if (this.model.ListOfEvents.Count > 0)
+                this.model.OffsetX = this.model.ListOfEvents.First().StartYear * this.model.IntervalLengthPx * -1;
+            else
+                model.OffsetX = this._renderWindow.Size.X / 2;
+
         }
 
         private void UpdateWindow()
@@ -237,10 +254,13 @@ namespace Timeline_Project
 
                 // Keyboard Shortcuts
                 case 'N':
-                    e.SuppressKeyPress = true;
-                    ToggleNewEventForm();
+                    if(e.Control)
+                    {
+                        e.SuppressKeyPress = true;
+                        ToggleNewEventForm();
+                    }
                     break;
-                        
+
                 case 'R':
                     model.OffsetX = model.OffsetX = this._renderWindow.Size.X / 2;
                     model.OffsetY = 0;
@@ -282,7 +302,8 @@ namespace Timeline_Project
             model.ScrollCount += Math.Sign(e.Delta);
 
             //Cap Zoom
-            if (model.ScrollCount < -132) model.ScrollCount = -132;
+            if (model.ScrollCount < -132) model.ScrollCount = model.ZoomMaxCap;
+            if (model.ScrollCount > 12) model.ScrollCount = model.ZoomMinCap;
 
             double oldZoom = model.Zoom;
             model.Zoom = (float)Math.Pow(1 + (model.ZoomSpeed / 100 * Math.Sign(model.ScrollCount)), Math.Abs(model.ScrollCount));
@@ -315,17 +336,14 @@ namespace Timeline_Project
 
         private void menuItemNewEvent_Click(object sender, RoutedEventArgs e)
         {
-            ToggleNewEventForm();
+            if(!model.IsSideColumnVisible) ToggleNewEventForm();
         }
 
         private void On_ThemeChange(object sender, RoutedEventArgs e)
         {
             System.Windows.Controls.MenuItem src = (System.Windows.Controls.MenuItem)e.Source;
-
             model.Theme = Theme.GetThemeByName(src.Name);
-
             DrawSurface.Focus();
-
             UpdateWindow();
         }
 
@@ -340,14 +358,13 @@ namespace Timeline_Project
             NewEventSubmitButton.Focus();
 
             ToggleNewEventForm();
-            model.AddEvent(new EventModel(model.NewEventName, model.NewEventYear));
+            model.AddEvent(new EventViewModel(model.NewEventName, model.NewEventYear));
 
             DrawSurface.Focus();
         }
         private void btnCancelNewEvent_Click(object sender, RoutedEventArgs e)
         {
-            if (model.IsSideColumnVisible) ToggleNewEventForm();
-
+            ToggleNewEventForm();
             DrawSurface.Focus();
         }
 
@@ -357,9 +374,9 @@ namespace Timeline_Project
             textbox.SelectAll();
         }
 
-        private void NameTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        private void btnNewFile_Click(object sender, RoutedEventArgs e)
         {
-
+            this.LoadTimeline();
         }
 
         private void btnSaveFile_Click(object sender, RoutedEventArgs e)
@@ -367,7 +384,7 @@ namespace Timeline_Project
             SaveFileDialog saveFileDialog = new SaveFileDialog();
             saveFileDialog.Filter = "Text file (*.txt)|*.txt";
             if (saveFileDialog.ShowDialog() == true)
-                File.WriteAllText(saveFileDialog.FileName, JsonConvert.SerializeObject(model.ConvertToModel(), Formatting.Indented));
+                File.WriteAllText(saveFileDialog.FileName, JsonConvert.SerializeObject(model.ConvertToSaveModel(), Formatting.Indented));
         }
 
         private void btnOpenFile_Click(object sender, RoutedEventArgs e)
@@ -377,18 +394,23 @@ namespace Timeline_Project
             if (openFileDialog.ShowDialog() == true)
             {
                 string json = File.ReadAllText(openFileDialog.FileName);
-
                 TimelineViewModel timelineViewModel = new TimelineViewModel();
-
                 timelineViewModel.SetViewModel(JsonConvert.DeserializeObject<TimelineModel>(json));
-
-                this.model = timelineViewModel;
+                this.LoadTimeline(timelineViewModel);
             }
         }
 
         private void DrawSurface_MouseClick(object sender, System.Windows.Forms.MouseEventArgs e)
         {
-            Debug.Print("Click!");
+            foreach (EventViewModel n in model.ListOfEvents)
+            {
+                if (n.IsMouseOver(_renderWindow))
+                {
+                    // Do something with that event
+                    n.StartYear++;
+                }
+            }
         }
+
     }
 }

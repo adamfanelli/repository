@@ -48,8 +48,8 @@ namespace TimelineLib.Themes
         public ThemeBeige()
         {
             BackgroundColor = new Color(255, 253, 244);
-            EventBackgroundColor = new Color(244, 243, 235);
-            EventHoverColor = Color.Black;
+            EventBackgroundColor = new Color(214, 213, 205);
+            EventHoverColor = EventBackgroundColor + new Color(40, 40, 40);
             LineColor = new Color(26, 26, 30);
             TextColor = new Color(26, 26, 30);
             TitleColor = TextColor;
@@ -64,7 +64,7 @@ namespace TimelineLib.Themes
         {
             BackgroundColor = new Color(66, 136, 183);
             EventBackgroundColor = new Color(79, 160, 214);
-            EventHoverColor = Color.Black;
+            EventHoverColor = EventBackgroundColor + new Color(40, 40, 40);
             LineColor = Color.White;
             TextColor = Color.White;
             TitleColor = TextColor;
@@ -79,7 +79,7 @@ namespace TimelineLib.Themes
         {
             BackgroundColor = new Color(88, 124, 92);
             EventBackgroundColor = new Color(105, 168, 92);
-            EventHoverColor = Color.Black;
+            EventHoverColor = EventBackgroundColor + new Color(40, 40, 40);
             LineColor = new Color(214, 150, 94);
             TextColor = new Color(232, 220, 211);
             TitleColor = TextColor;
@@ -94,7 +94,7 @@ namespace TimelineLib.Themes
         {
             BackgroundColor = new Color(47, 47, 60);
             EventBackgroundColor = new Color(75, 75, 90);
-            EventHoverColor = Color.Black;
+            EventHoverColor = EventBackgroundColor + new Color(40, 40, 40);
             LineColor = new Color(201, 201, 201);
             TextColor = new Color(244, 236, 200); 
             TitleColor = TextColor;

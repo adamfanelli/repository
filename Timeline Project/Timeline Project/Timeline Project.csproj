@@ -150,6 +150,7 @@
     <Content Include="csfml-Window.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Resource Include="icon.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TimelineLib\TimelineLib.csproj">
