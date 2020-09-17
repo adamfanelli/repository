@@ -29,8 +29,8 @@ using Window = SFML.Window.Window;
 using Mouse = SFML.Window.Mouse;
 using System.Runtime.CompilerServices;
 using System.ComponentModel;
-using SaveFileDialog = Microsoft.Win32.SaveFileDialog;
 using Newtonsoft.Json;
+using SaveFileDialog = Microsoft.Win32.SaveFileDialog;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 
 namespace Timeline_Project
@@ -186,11 +186,6 @@ namespace Timeline_Project
             // DRAW EVENTS
             model.DrawEvents(this._renderWindow);
 
-            // DRAW DEBUG INFO
-            //model.DrawDebugNumber("Zoom: ", (float)model.Zoom, this._renderWindow, 220);
-            //model.DrawDebugNumber("Focus: ", this._renderWindow.HasFocus() ? 1 : 0, this._renderWindow, 280);
-            //model.DrawDebugNumber("Column Visible: ", IsSideColumnVisible ? 1 : 0, this._renderWindow, 120);
-
             // PAN SCREEN
             if(IsMouseDown)
             {
@@ -212,17 +207,38 @@ namespace Timeline_Project
             this._renderWindow.Display();
         }
 
-        public void ToggleNewEventForm()
+        public void ToggleSideColumn(EventViewModel eventViewModel = null)
         {
+            // If an EventViewModel is passed, open a form to edit it. If not, open a form to create a new event.
             if(!model.IsSideColumnVisible)
             {
-                model.NewEventName = "";
-                model.NewEventYear = model.YearAtMouse;
+                // New Event Form
+                if(eventViewModel == null)
+                {
+                    model.SideColumnHeader = "Add New Event";
+                    model.NewEventName = "";
+                    model.NewEventYear = model.YearAtMouse;
+                }
+                // Edit Event Form
+                else
+                {
+                    model.SideColumnHeader = "Edit Event";
+                    model.NewEventName = eventViewModel.Name;
+                    model.NewEventYear = eventViewModel.StartYear;
+                    model.ShowDeleteButton = true;
+
+                    model.EditingEvent = eventViewModel;
+                }
+
                 NameTextBox.Focus();
+            }
+            else
+            {
+                model.ShowDeleteButton = false;
+                model.EditingEvent = null;
             }
 
             model.IsSideColumnVisible = !model.IsSideColumnVisible;
-
             UpdateWindow();
         }
 
@@ -252,20 +268,23 @@ namespace Timeline_Project
                     KeyPressed_D = true;
                     break;
 
-                // Keyboard Shortcuts
+                // CTRL Keyboard Shortcuts
                 case 'N':
                     if(e.Control)
                     {
                         e.SuppressKeyPress = true;
-                        ToggleNewEventForm();
+                        ToggleSideColumn();
                     }
                     break;
 
                 case 'R':
-                    model.OffsetX = model.OffsetX = this._renderWindow.Size.X / 2;
-                    model.OffsetY = 0;
-                    model.Zoom = 1;
-                    model.ScrollCount = 0;
+                    if (e.Control)
+                    {
+                        model.OffsetX = model.OffsetX = this._renderWindow.Size.X / 2;
+                        model.OffsetY = 0;
+                        model.Zoom = 1;
+                        model.ScrollCount = 0;
+                    }
                     break;
             }
         }
@@ -331,12 +350,12 @@ namespace Timeline_Project
 
         private void DrawSurface_DoubleClick(object sender, EventArgs e)
         {
-            ToggleNewEventForm();
+            ToggleSideColumn();
         }
 
         private void menuItemNewEvent_Click(object sender, RoutedEventArgs e)
         {
-            if(!model.IsSideColumnVisible) ToggleNewEventForm();
+            if(!model.IsSideColumnVisible) ToggleSideColumn();
         }
 
         private void On_ThemeChange(object sender, RoutedEventArgs e)
@@ -350,21 +369,49 @@ namespace Timeline_Project
         private void btnSubmitNewEvent_Click(object sender, RoutedEventArgs e)
         {
             NewEventSubmitButton.Focus();
-            if (model.NewEventName != "") SubmitNewEvent();
+            if (model.NewEventName != "")
+            {
+                SubmitNewEvent();
+            }
         }
 
         private void SubmitNewEvent()
         {
             NewEventSubmitButton.Focus();
+            ToggleSideColumn();
 
-            ToggleNewEventForm();
-            model.AddEvent(new EventViewModel(model.NewEventName, model.NewEventYear));
+            if (model.EditingEvent != null)
+            {
+                model.EditingEvent.Name = model.NewEventName;
+                model.EditingEvent.StartYear = model.NewEventYear;
+
+                model.EditingEvent = null;
+            }
+            else
+            {
+                model.AddEvent(new EventViewModel(model.NewEventName, model.NewEventYear));
+            }
 
             DrawSurface.Focus();
         }
         private void btnCancelNewEvent_Click(object sender, RoutedEventArgs e)
         {
-            ToggleNewEventForm();
+            if(model.IsSideColumnVisible)
+            {
+                ToggleSideColumn();
+            }
+
+            DrawSurface.Focus();
+        }
+        
+        private void btnDeleteEvent_Click(object sender, RoutedEventArgs e)
+        {
+            if(model.IsSideColumnVisible)
+            {
+                model.ListOfEvents.Remove(model.EditingEvent); 
+                ToggleSideColumn();
+            }
+
             DrawSurface.Focus();
         }
 
@@ -402,15 +449,18 @@ namespace Timeline_Project
 
         private void DrawSurface_MouseClick(object sender, System.Windows.Forms.MouseEventArgs e)
         {
-            foreach (EventViewModel n in model.ListOfEvents)
+            foreach (EventViewModel eventViewModel in model.ListOfEvents)
             {
-                if (n.IsMouseOver(_renderWindow))
+                if (eventViewModel.IsMouseOver(_renderWindow))
                 {
-                    // Do something with that event
-                    n.StartYear++;
+                    ToggleSideColumn(eventViewModel);
                 }
             }
         }
 
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

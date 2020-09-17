@@ -44,7 +44,7 @@ namespace TimelineLib
         public uint MarkerCharacterSize { get; set; }
         public uint MarkerHighlightedCharacterSize { get; set; }
 
-
+        public EventViewModel EditingEvent { get; set; }
 
         private bool isSideColumnVisible;
         public bool IsSideColumnVisible
@@ -67,6 +67,19 @@ namespace TimelineLib
             set { newEventYear = value; NotifyPropertyChanged(); }
         }
 
+        private string sideColumnHeader;
+        public string SideColumnHeader
+        {
+            get { return sideColumnHeader; }
+            set { sideColumnHeader = value; NotifyPropertyChanged(); }
+        }
+        
+        public bool showDeleteButton;
+        public bool ShowDeleteButton
+        {
+            get { return showDeleteButton; }
+            set { showDeleteButton = value; NotifyPropertyChanged(); }
+        }
 
         public int YearAtMouse { get; set; }
 
@@ -332,12 +345,7 @@ namespace TimelineLib
                 e.Size = new Vector2f(lCircle.Radius + textBg.Size.X + rCircle.Radius, textBg.Size.Y);
 
                 // Change background color on hover
-                Color bgColor =
-                    Mouse.GetPosition().X - window.Position.X > x - textBg.Size.X/2 - lCircle.Radius &&
-                    Mouse.GetPosition().X - window.Position.X < x + textBg.Size.X / 2 + lCircle.Radius &&
-                    Mouse.GetPosition().Y - window.Position.Y > y &&
-                    Mouse.GetPosition().Y - window.Position.Y < y + textBg.Size.Y
-                    ? Theme.EventHoverColor : Theme.EventBackgroundColor;
+                Color bgColor = (e.IsMouseOver(window) || e == EditingEvent) ? Theme.EventHoverColor : Theme.EventBackgroundColor;
 
                 textBg.FillColor = bgColor;
                 lCircle.FillColor = bgColor;

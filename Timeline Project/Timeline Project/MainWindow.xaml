@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:TimelineProject="clr-namespace:Timeline_Project"
         xmlns:local="clr-namespace:Timeline_Project"
         mc:Ignorable="d"
@@ -11,10 +12,16 @@
         MinHeight="600"
         MinWidth="800"
         WindowState="Maximized"
+        FontFamily="{DynamicResource MaterialDesignFont}"
         Title="Timeline Project" Height="800" Width="1200">
+    
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="Converter" />
+    </Window.Resources>
+    
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="20"/>
+            <RowDefinition Height="40"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
@@ -52,14 +59,17 @@
                 <RowDefinition Height="23"/>
                 <RowDefinition Height="25"/>
                 <RowDefinition Height="23"/>
-                <RowDefinition Height="120"/>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="450"/>
+                <RowDefinition Height="30"/>
             </Grid.RowDefinitions>
 
             <Rectangle Grid.Row="0" Grid.ColumnSpan="2" Fill="WhiteSmoke"/>
-            
-            <TextBlock Grid.Row="0" Grid.ColumnSpan="2" VerticalAlignment="Center" HorizontalAlignment="Center">
-                <Bold>New Event</Bold>
-            </TextBlock>
+
+            <materialDesign:Card Grid.Row="0" Grid.ColumnSpan="2" >
+                <TextBlock Text="{Binding SideColumnHeader}" FontWeight="Bold" VerticalAlignment="Center" FontSize="14" HorizontalAlignment="Center"/>
+            </materialDesign:Card>
 
 
             <Label Grid.Row="2" Grid.ColumnSpan="2" Content="Name" FontWeight="Bold"/>
@@ -69,19 +79,26 @@
             <TextBox Grid.Row="5" Grid.ColumnSpan="2" Width="100"  FontSize="15"  Name="YearTextBox" Text="{Binding NewEventYear}" GotFocus="TextBox_GotFocus"  HorizontalAlignment="Left"/>
 
 
-            <Button Grid.Row="6" Content="Add Event" Name="NewEventSubmitButton" IsDefault="true" Click="btnSubmitNewEvent_Click" Width="80" Height="30"/>
-            <Button Grid.Row="6" Grid.Column="1" Content="Cancel" IsCancel="true" Click="btnCancelNewEvent_Click" Width="80" Height="30"/>
+            <Button Grid.Row="7" Content="Submit" Name="NewEventSubmitButton" IsDefault="true" Click="btnSubmitNewEvent_Click" Width="80" Height="30" Foreground="White"/>
+            <Button Grid.Row="7" Grid.Column="1" Content="Cancel" IsCancel="true" Click="btnCancelNewEvent_Click" Width="80" Height="30" Foreground="White"/>
+            <Button Visibility="{Binding Path=ShowDeleteButton, Converter={StaticResource Converter}}" 
+                    Grid.Row="9" Grid.ColumnSpan="2" Click="btnDeleteEvent_Click" Width="180" Height="30" Background="#FF5151" Foreground="White">
+                <StackPanel>
+                    <materialDesign:PackIcon Kind="TrashCan" Foreground="White"/>
+                    <TextBlock Text="Delete Event"/>
+                </StackPanel>
+            </Button>
 
         </Grid>
 
         <DockPanel Grid.Row="0"  Width="Auto">
-            <Menu DockPanel.Dock="Top" Background="White">
+            <Menu DockPanel.Dock="Top" Background="White" FontSize="12">
                 <MenuItem Header="File">
                     <MenuItem Header="New" Click="btnNewFile_Click" />
                     <MenuItem Header="Open" Click="btnOpenFile_Click" />
                     <MenuItem Header="Save" Click="btnSaveFile_Click" />
                     <Separator />
-                    <MenuItem Header="Exit" />
+                    <MenuItem Header="Exit"/>
                 </MenuItem>
 
                 <MenuItem Header="Edit">

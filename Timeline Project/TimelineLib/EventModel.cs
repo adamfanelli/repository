@@ -7,6 +7,6 @@ namespace TimelineLib
     public class EventModel
     {
         public string Name { get; set; }
-        public float StartYear { get; set; }
+        public int StartYear { get; set; }
     }
 }

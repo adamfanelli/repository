@@ -16,12 +16,12 @@ namespace TimelineLib
     public class EventViewModel
     {
         public string Name { get; set; }
-        public float StartYear { get; set; }
+        public int StartYear { get; set; }
 
         public Vector2f ScreenPos { get; set; }
         public Vector2f Size { get; set; }
 
-        public EventViewModel(string name = "", float startYear = 0)
+        public EventViewModel(string name = "", int startYear = 0)
         {
             Name = name;
             StartYear = startYear;
