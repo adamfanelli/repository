@@ -279,12 +279,6 @@ namespace TimelineLib
             text.Position = new Vector2f(20, 20);
             text.FillColor = Theme.TitleColor;
             window.Draw(text);
-
-            //Draw Mouse Pos
-            Text mouseText = new Text((Mouse.GetPosition().X - window.Position.X) + ", " + (Mouse.GetPosition().Y - window.Position.Y), this.PrimaryFont);
-            mouseText.Position = new Vector2f(50, 50/*Mouse.GetPosition().X, Mouse.GetPosition().Y*/);
-            text.FillColor = Theme.TextColor;
-            window.Draw(mouseText);
         }
 
         public void DrawEvents(RenderWindow window)

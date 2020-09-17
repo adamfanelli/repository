@@ -51,8 +51,8 @@ namespace Timeline_Project
 
         public bool IsMouseDown = false;
 
-        public float PrevMouseX;
-        public float PrevMouseY;
+        public Vector2f PrevMousePos;
+        public Vector2f LastClickedPos;
 
         public float DefaultRefreshRate = 0.0005f;
         public float RefreshCount = 0;
@@ -154,11 +154,8 @@ namespace Timeline_Project
             // Create the Window
             this.CreateRenderWindow();
 
-            // Set the OffsetX
-            if (this.model.ListOfEvents.Count > 0)
-                this.model.OffsetX = this.model.ListOfEvents.First().StartYear * this.model.IntervalLengthPx * -1;
-            else
-                model.OffsetX = this._renderWindow.Size.X / 2;
+            // Set the Zoom
+            this.ResetZoom();
 
         }
 
@@ -192,11 +189,10 @@ namespace Timeline_Project
                 float CurrMouseX = Mouse.GetPosition().X - _renderWindow.Position.X;
                 float CurrMouseY = Mouse.GetPosition().Y - _renderWindow.Position.Y;
 
-                model.OffsetX -= PrevMouseX - CurrMouseX;
-                model.OffsetY -= PrevMouseY - CurrMouseY;
+                model.OffsetX -= PrevMousePos.X - CurrMouseX;
+                model.OffsetY -= PrevMousePos.Y - CurrMouseY;
 
-                PrevMouseX = CurrMouseX;
-                PrevMouseY = CurrMouseY;
+                PrevMousePos = new Vector2f(CurrMouseX, CurrMouseY);
             }
 
             // DRAW TITLE
@@ -207,39 +203,55 @@ namespace Timeline_Project
             this._renderWindow.Display();
         }
 
-        public void ToggleSideColumn(EventViewModel eventViewModel = null)
+        public void ResetZoom()
         {
-            // If an EventViewModel is passed, open a form to edit it. If not, open a form to create a new event.
-            if(!model.IsSideColumnVisible)
+            if (this.model.ListOfEvents.Count > 0)
+                this.model.OffsetX = this.model.ListOfEvents.First().StartYear * this.model.IntervalLengthPx * -1;
+            else
+                model.OffsetX = this._renderWindow.Size.X / 2;
+
+            model.OffsetY = 0;
+            model.Zoom = 1;
+            model.ScrollCount = 0;
+        }
+
+        public void OpenSideColumn(EventViewModel eventViewModel = null)
+        {
+            model.IsSideColumnVisible = true;
+
+            // New Event Form
+            if (eventViewModel == null)
             {
-                // New Event Form
-                if(eventViewModel == null)
-                {
-                    model.SideColumnHeader = "Add New Event";
-                    model.NewEventName = "";
-                    model.NewEventYear = model.YearAtMouse;
-                }
-                // Edit Event Form
-                else
-                {
-                    model.SideColumnHeader = "Edit Event";
-                    model.NewEventName = eventViewModel.Name;
-                    model.NewEventYear = eventViewModel.StartYear;
-                    model.ShowDeleteButton = true;
-
-                    model.EditingEvent = eventViewModel;
-                }
-
-                NameTextBox.Focus();
+                model.SideColumnHeader = "Add New Event";
+                model.NewEventName = "";
+                model.NewEventYear = model.YearAtMouse;
             }
+            // Edit Event Form (if a model is passed in)
             else
             {
-                model.ShowDeleteButton = false;
-                model.EditingEvent = null;
+                model.SideColumnHeader = "Edit Event";
+                model.NewEventName = eventViewModel.Name;
+                model.NewEventYear = eventViewModel.StartYear;
+                model.ShowDeleteButton = true;
+
+                model.EditingEvent = eventViewModel;
             }
 
-            model.IsSideColumnVisible = !model.IsSideColumnVisible;
+            NameTextBox.Focus();
+
             UpdateWindow();
+        }
+
+        public void CloseSideColumn()
+        {
+            model.IsSideColumnVisible = false;
+
+            model.ShowDeleteButton = false;
+            model.EditingEvent = null;
+
+            UpdateWindow();
+
+            DrawSurface.Focus();
         }
 
         private void DrawSurface_SizeChanged(object sender, EventArgs e)
@@ -270,21 +282,12 @@ namespace Timeline_Project
 
                 // CTRL Keyboard Shortcuts
                 case 'N':
-                    if(e.Control)
-                    {
-                        e.SuppressKeyPress = true;
-                        ToggleSideColumn();
-                    }
+                    e.SuppressKeyPress = true;
+                    if (!model.IsSideColumnVisible) OpenSideColumn();
                     break;
 
                 case 'R':
-                    if (e.Control)
-                    {
-                        model.OffsetX = model.OffsetX = this._renderWindow.Size.X / 2;
-                        model.OffsetY = 0;
-                        model.Zoom = 1;
-                        model.ScrollCount = 0;
-                    }
+                    ResetZoom();
                     break;
             }
         }
@@ -339,8 +342,8 @@ namespace Timeline_Project
         {
             IsMouseDown = true;
 
-            PrevMouseX = Mouse.GetPosition().X - _renderWindow.Position.X;
-            PrevMouseY = Mouse.GetPosition().Y - _renderWindow.Position.Y;
+            PrevMousePos = new Vector2f(Mouse.GetPosition().X - _renderWindow.Position.X, Mouse.GetPosition().Y - _renderWindow.Position.Y);
+            LastClickedPos = PrevMousePos;
         }
 
         private void DrawSurface_MouseUp(object sender, System.Windows.Forms.MouseEventArgs e)
@@ -348,14 +351,34 @@ namespace Timeline_Project
             IsMouseDown = false;
         }
 
+        private void DrawSurface_MouseClick(object sender, System.Windows.Forms.MouseEventArgs e)
+        {
+            bool closeSideColumn = true;
+
+            foreach (EventViewModel eventViewModel in model.ListOfEvents)
+            {
+                if (eventViewModel.IsMouseOver(_renderWindow) && eventViewModel != model.EditingEvent)
+                {
+                    CloseSideColumn();
+                    OpenSideColumn(eventViewModel);
+
+                    closeSideColumn = false;
+                }
+            }
+
+            // Close side column if the cursor wasn't dragged
+            if (closeSideColumn && LastClickedPos == new Vector2f(Mouse.GetPosition().X - _renderWindow.Position.X, Mouse.GetPosition().Y - _renderWindow.Position.Y))
+                CloseSideColumn();
+        }
+
         private void DrawSurface_DoubleClick(object sender, EventArgs e)
         {
-            ToggleSideColumn();
+            OpenSideColumn();
         }
 
         private void menuItemNewEvent_Click(object sender, RoutedEventArgs e)
         {
-            if(!model.IsSideColumnVisible) ToggleSideColumn();
+            OpenSideColumn();
         }
 
         private void On_ThemeChange(object sender, RoutedEventArgs e)
@@ -378,7 +401,6 @@ namespace Timeline_Project
         private void SubmitNewEvent()
         {
             NewEventSubmitButton.Focus();
-            ToggleSideColumn();
 
             if (model.EditingEvent != null)
             {
@@ -392,30 +414,24 @@ namespace Timeline_Project
                 model.AddEvent(new EventViewModel(model.NewEventName, model.NewEventYear));
             }
 
-            DrawSurface.Focus();
+            CloseSideColumn();
         }
         private void btnCancelNewEvent_Click(object sender, RoutedEventArgs e)
         {
-            if(model.IsSideColumnVisible)
-            {
-                ToggleSideColumn();
-            }
-
-            DrawSurface.Focus();
+            CloseSideColumn();
         }
         
         private void btnDeleteEvent_Click(object sender, RoutedEventArgs e)
         {
             if(model.IsSideColumnVisible)
             {
-                model.ListOfEvents.Remove(model.EditingEvent); 
-                ToggleSideColumn();
-            }
+                model.ListOfEvents.Remove(model.EditingEvent);
 
-            DrawSurface.Focus();
+                CloseSideColumn();
+            }
         }
 
-        private void TextBox_GotFocus(object sender, RoutedEventArgs e)
+        private void TextBox_SelectAllOnFocus(object sender, RoutedEventArgs e)
         {
             System.Windows.Controls.TextBox textbox = (System.Windows.Controls.TextBox)e.Source;
             textbox.SelectAll();
@@ -445,22 +461,6 @@ namespace Timeline_Project
                 timelineViewModel.SetViewModel(JsonConvert.DeserializeObject<TimelineModel>(json));
                 this.LoadTimeline(timelineViewModel);
             }
-        }
-
-        private void DrawSurface_MouseClick(object sender, System.Windows.Forms.MouseEventArgs e)
-        {
-            foreach (EventViewModel eventViewModel in model.ListOfEvents)
-            {
-                if (eventViewModel.IsMouseOver(_renderWindow))
-                {
-                    ToggleSideColumn(eventViewModel);
-                }
-            }
-        }
-
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
-        {
-
         }
     }
 }
