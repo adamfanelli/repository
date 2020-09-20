@@ -17,20 +17,27 @@ namespace TimelineLib
     {
         public string Name { get; set; }
         public int StartYear { get; set; }
+        public int StartMonth { get; set; }
+        public int StartDay { get; set; }
+        public int StartHour { get; set; }
 
         public Vector2f ScreenPos { get; set; }
         public Vector2f Size { get; set; }
 
-        public EventViewModel(string name = "", int startYear = 0)
+        public EventViewModel(string name = "", int startYear = 0, int startMonth = 0, int startHour = 0)
         {
             Name = name;
             StartYear = startYear;
+            StartMonth = startMonth;
+            StartHour = startHour;
         }
 
         public void SetViewModel(EventModel e)
         {
             this.Name = e.Name;
             this.StartYear = e.StartYear;
+            this.StartMonth = e.StartMonth;
+            this.StartDay = e.StartDay;
         }
 
         public EventModel ConvertToSaveModel()
@@ -39,6 +46,8 @@ namespace TimelineLib
 
             e.Name = this.Name;
             e.StartYear = this.StartYear;
+            e.StartMonth = this.StartMonth;
+            e.StartDay = this.StartDay;
 
             return e;
         }

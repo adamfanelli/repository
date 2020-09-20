@@ -8,5 +8,8 @@ namespace TimelineLib
     {
         public string Name { get; set; }
         public int StartYear { get; set; }
+        public int StartMonth { get; set; }
+        public int StartDay { get; set; }
+        public int StartHour { get; set; }
     }
 }

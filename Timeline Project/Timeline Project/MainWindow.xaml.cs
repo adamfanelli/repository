@@ -65,7 +65,8 @@ namespace Timeline_Project
             // Load a new Timeline
             LoadTimeline();
 
-            model.AddEvent(new EventViewModel("Test Event"));
+            // Add a test event
+            model.AddEvent(new EventViewModel("Test Event", 0, 6, 0));
         }
 
         private void CreateRenderWindow()
@@ -225,6 +226,8 @@ namespace Timeline_Project
                 model.SideColumnHeader = "Add New Event";
                 model.NewEventName = "";
                 model.NewEventYear = model.YearAtMouse;
+                model.NewEventMonth = 0;
+                model.NewEventDay = 0;
             }
             // Edit Event Form (if a model is passed in)
             else
@@ -232,6 +235,8 @@ namespace Timeline_Project
                 model.SideColumnHeader = "Edit Event";
                 model.NewEventName = eventViewModel.Name;
                 model.NewEventYear = eventViewModel.StartYear;
+                model.NewEventMonth = eventViewModel.StartMonth;
+                model.NewEventDay = eventViewModel.StartDay;
                 model.ShowDeleteButton = true;
 
                 model.EditingEvent = eventViewModel;
@@ -254,6 +259,27 @@ namespace Timeline_Project
             DrawSurface.Focus();
         }
 
+        public void SaveFile()
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "Text file (*.txt)|*.txt";
+            if (saveFileDialog.ShowDialog() == true)
+                File.WriteAllText(saveFileDialog.FileName, JsonConvert.SerializeObject(model.ConvertToSaveModel(), Formatting.Indented));
+        }
+
+        public void OpenFile()
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
+            if (openFileDialog.ShowDialog() == true)
+            {
+                string json = File.ReadAllText(openFileDialog.FileName);
+                TimelineViewModel timelineViewModel = new TimelineViewModel();
+                timelineViewModel.SetViewModel(JsonConvert.DeserializeObject<TimelineModel>(json));
+                this.LoadTimeline(timelineViewModel);
+            }
+        }
+
         private void DrawSurface_SizeChanged(object sender, EventArgs e)
         {
             this.CreateRenderWindow();
@@ -273,14 +299,20 @@ namespace Timeline_Project
                     break;
 
                 case 'S':
-                    KeyPressed_S = true;
+
+                    if (e.Control) {
+                        e.SuppressKeyPress = true;
+                        SaveFile();
+                    }
+                    else
+                        KeyPressed_S = true;
                     break;
 
                 case 'D':
                     KeyPressed_D = true;
                     break;
 
-                // CTRL Keyboard Shortcuts
+                // Keyboard Shortcuts
                 case 'N':
                     e.SuppressKeyPress = true;
                     if (!model.IsSideColumnVisible) OpenSideColumn();
@@ -324,8 +356,8 @@ namespace Timeline_Project
             model.ScrollCount += Math.Sign(e.Delta);
 
             //Cap Zoom
-            if (model.ScrollCount < -132) model.ScrollCount = model.ZoomMaxCap;
-            if (model.ScrollCount > 12) model.ScrollCount = model.ZoomMinCap;
+            if (model.ScrollCount < model.ZoomMaxCap) model.ScrollCount = model.ZoomMaxCap;
+            if (model.ScrollCount > model.ZoomMinCap) model.ScrollCount = model.ZoomMinCap;
 
             double oldZoom = model.Zoom;
             model.Zoom = (float)Math.Pow(1 + (model.ZoomSpeed / 100 * Math.Sign(model.ScrollCount)), Math.Abs(model.ScrollCount));
@@ -406,12 +438,14 @@ namespace Timeline_Project
             {
                 model.EditingEvent.Name = model.NewEventName;
                 model.EditingEvent.StartYear = model.NewEventYear;
+                model.EditingEvent.StartMonth = model.NewEventMonth;
+                model.EditingEvent.StartDay = model.NewEventDay;
 
                 model.EditingEvent = null;
             }
             else
             {
-                model.AddEvent(new EventViewModel(model.NewEventName, model.NewEventYear));
+                model.AddEvent(new EventViewModel(model.NewEventName, model.NewEventYear, model.NewEventMonth, model.NewEventDay));
             }
 
             CloseSideColumn();
@@ -444,23 +478,12 @@ namespace Timeline_Project
 
         private void btnSaveFile_Click(object sender, RoutedEventArgs e)
         {
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Filter = "Text file (*.txt)|*.txt";
-            if (saveFileDialog.ShowDialog() == true)
-                File.WriteAllText(saveFileDialog.FileName, JsonConvert.SerializeObject(model.ConvertToSaveModel(), Formatting.Indented));
+            SaveFile();
         }
 
         private void btnOpenFile_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
-            if (openFileDialog.ShowDialog() == true)
-            {
-                string json = File.ReadAllText(openFileDialog.FileName);
-                TimelineViewModel timelineViewModel = new TimelineViewModel();
-                timelineViewModel.SetViewModel(JsonConvert.DeserializeObject<TimelineModel>(json));
-                this.LoadTimeline(timelineViewModel);
-            }
+            OpenFile();
         }
     }
 }
