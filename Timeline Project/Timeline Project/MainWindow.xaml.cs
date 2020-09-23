@@ -57,6 +57,8 @@ namespace Timeline_Project
         public float DefaultRefreshRate = 0.0005f;
         public float RefreshCount = 0;
 
+        public Stopwatch DisplayEventNoteStopwatch;
+
 
         public MainWindow()
         {
@@ -65,8 +67,35 @@ namespace Timeline_Project
             // Load a new Timeline
             LoadTimeline();
 
-            // Add a test event
-            model.AddEvent(new EventViewModel("Test Event", 0, 6, 0));
+            // Initialize a test category
+            model.AddCategory(new Category()
+            {
+                BackgroundColor = Color.Red,
+                BackgroundColorHover = Color.Red + new Color(40, 40, 40),
+                TextColor = model.Theme.TextColor,
+                ID = 1,
+                Name = "Red Category",
+                PriorityLevel = 1
+            });
+
+            // Initialize a test event
+            model.AddEvent(new EventViewModel().SetViewModel(new EventModel()
+            {
+                CategoryID = 1,
+                Name = "Whoa, it's an event",
+                StartYear = 20,
+                Note = "That one time when the thing was at the place"
+            }));
+
+            model.AddEvent(new EventViewModel().SetViewModel(new EventModel()
+            {
+                CategoryID = 1,
+                Name = "Whoa, it's an event",
+                StartYear = 30,
+                Note = "OOOOGA       B O O G A"
+            }));
+
+            DisplayEventNoteStopwatch = new Stopwatch();
         }
 
         private void CreateRenderWindow()
@@ -101,6 +130,9 @@ namespace Timeline_Project
 
                             bool Update;
 
+                            // Check if a Note needs to be drawn
+
+
                             // Update Window
                             RefreshCount += DefaultRefreshRate;
                             if (RefreshCount > 0.5)
@@ -115,9 +147,37 @@ namespace Timeline_Project
                                     KeyPressed_W || KeyPressed_A || KeyPressed_S || KeyPressed_D;
                             }
 
+
+                            bool done = false;
+
                             foreach (EventViewModel n in model.ListOfEvents)
                             {
-                                if (n.IsMouseOver(_renderWindow)) Update = true;
+                                if (n.IsMouseOver(_renderWindow))
+                                {
+                                    // Update window so the background color changes
+                                    Update = true;
+
+                                    // Check if Note needs to be drawn
+                                    if (n.Note != null)
+                                    {
+                                        done = true;
+
+                                        if (!DisplayEventNoteStopwatch.IsRunning) DisplayEventNoteStopwatch.Start();
+
+                                        if (DisplayEventNoteStopwatch.Elapsed.TotalSeconds > model.DisplayNoteDelayInSeconds)
+                                        {
+                                            model.EventToDrawNote = n;
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (!done)
+                            {
+                                DisplayEventNoteStopwatch.Stop();
+                                DisplayEventNoteStopwatch.Reset();
+
+                                model.EventToDrawNote = null;
                             }
 
                             if (Update) UpdateWindow();
@@ -224,19 +284,21 @@ namespace Timeline_Project
             if (eventViewModel == null)
             {
                 model.SideColumnHeader = "Add New Event";
-                model.NewEventName = "";
-                model.NewEventYear = model.YearAtMouse;
-                model.NewEventMonth = 0;
-                model.NewEventDay = 0;
+                model.EditingEventName = "";
+                model.EditingEventYear = model.YearAtMouse;
+                model.EditingEventMonth = 0;
+                model.EditingEventDay = 0;
+                model.EditingEventNote = null;
             }
             // Edit Event Form (if a model is passed in)
             else
             {
                 model.SideColumnHeader = "Edit Event";
-                model.NewEventName = eventViewModel.Name;
-                model.NewEventYear = eventViewModel.StartYear;
-                model.NewEventMonth = eventViewModel.StartMonth;
-                model.NewEventDay = eventViewModel.StartDay;
+                model.EditingEventName = eventViewModel.Name;
+                model.EditingEventYear = eventViewModel.StartYear;
+                model.EditingEventMonth = eventViewModel.StartMonth;
+                model.EditingEventDay = eventViewModel.StartDay;
+                model.EditingEventNote = eventViewModel.Note;
                 model.ShowDeleteButton = true;
 
                 model.EditingEvent = eventViewModel;
@@ -424,7 +486,7 @@ namespace Timeline_Project
         private void btnSubmitNewEvent_Click(object sender, RoutedEventArgs e)
         {
             NewEventSubmitButton.Focus();
-            if (model.NewEventName != "")
+            if (model.EditingEventName != "")
             {
                 SubmitNewEvent();
             }
@@ -436,16 +498,24 @@ namespace Timeline_Project
 
             if (model.EditingEvent != null)
             {
-                model.EditingEvent.Name = model.NewEventName;
-                model.EditingEvent.StartYear = model.NewEventYear;
-                model.EditingEvent.StartMonth = model.NewEventMonth;
-                model.EditingEvent.StartDay = model.NewEventDay;
+                model.EditingEvent.Name = model.EditingEventName;
+                model.EditingEvent.StartYear = model.EditingEventYear;
+                model.EditingEvent.StartMonth = model.EditingEventMonth;
+                model.EditingEvent.StartDay = model.EditingEventDay;
+                model.EditingEvent.Note = model.EditingEventNote;
 
                 model.EditingEvent = null;
             }
             else
             {
-                model.AddEvent(new EventViewModel(model.NewEventName, model.NewEventYear, model.NewEventMonth, model.NewEventDay));
+                model.AddEvent(new EventViewModel().SetViewModel(new EventModel() 
+                { 
+                    Name = model.EditingEventName, 
+                    StartYear = model.EditingEventYear,
+                    StartMonth = model.EditingEventMonth,
+                    StartDay = model.EditingEventDay,
+                    Note = model.EditingEventNote
+                }));
             }
 
             CloseSideColumn();

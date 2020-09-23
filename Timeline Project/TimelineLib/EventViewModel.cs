@@ -16,28 +16,34 @@ namespace TimelineLib
     public class EventViewModel
     {
         public string Name { get; set; }
+        public int? CategoryID { get; set; }
+        public Category Category { get; set; }
         public int StartYear { get; set; }
         public int StartMonth { get; set; }
         public int StartDay { get; set; }
         public int StartHour { get; set; }
+        public string Note { get; set; }
 
         public Vector2f ScreenPos { get; set; }
         public Vector2f Size { get; set; }
 
-        public EventViewModel(string name = "", int startYear = 0, int startMonth = 0, int startHour = 0)
+        public double X { get; set; }
+
+        public EventViewModel()
         {
-            Name = name;
-            StartYear = startYear;
-            StartMonth = startMonth;
-            StartHour = startHour;
+
         }
 
-        public void SetViewModel(EventModel e)
+        public EventViewModel SetViewModel(EventModel e)
         {
             this.Name = e.Name;
             this.StartYear = e.StartYear;
             this.StartMonth = e.StartMonth;
             this.StartDay = e.StartDay;
+            this.CategoryID = e.CategoryID;
+            this.Note = e.Note;
+
+            return this;
         }
 
         public EventModel ConvertToSaveModel()
@@ -48,6 +54,8 @@ namespace TimelineLib
             e.StartYear = this.StartYear;
             e.StartMonth = this.StartMonth;
             e.StartDay = this.StartDay;
+            e.CategoryID = this.Category?.ID;
+            e.Note = this.Note;
 
             return e;
         }

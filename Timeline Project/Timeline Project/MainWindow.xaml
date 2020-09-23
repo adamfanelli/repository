@@ -53,20 +53,24 @@
             </Grid.ColumnDefinitions>
 
             <Grid.RowDefinitions>
-                <RowDefinition Height="40" />
+                <RowDefinition Height="40"/> <!-- 0 -->
                 <RowDefinition Height="25"/>
                 <RowDefinition Height="25"/>
                 <RowDefinition Height="23"/>
                 <RowDefinition Height="25"/>
-                <RowDefinition Height="23"/>
+                <RowDefinition Height="23"/> <!-- 5 -->
                 <RowDefinition Height="25"/>
                 <RowDefinition Height="23"/>
                 <RowDefinition Height="25"/>
                 <RowDefinition Height="23"/>
-                <RowDefinition Height="50"/>
+                <RowDefinition Height="25"/> <!-- 10 -->
                 <RowDefinition Height="30"/>
-                <RowDefinition Height="140"/>
-                <RowDefinition Height="30"/>
+                <RowDefinition Height="25"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="25"/>
+                <RowDefinition Height="40"/> <!-- 15 -->
+                <RowDefinition Height="20"/>
+                <RowDefinition Height="40"/>
             </Grid.RowDefinitions>
 
             <Rectangle Grid.Row="0" Grid.ColumnSpan="2" Fill="WhiteSmoke"/>
@@ -77,30 +81,38 @@
 
 
             <Label Grid.Row="2" Grid.ColumnSpan="2" Content="Name" FontWeight="Bold"/>
-            <TextBox Grid.Row="3" Grid.ColumnSpan="2"  Width="auto"  FontSize="15" Name="NameTextBox" Text="{Binding NewEventName}" GotFocus="TextBox_SelectAllOnFocus" />
+            <TextBox Grid.Row="3" Grid.ColumnSpan="2"  Width="auto"  FontSize="15" Name="NameTextBox" Text="{Binding EditingEventName}" GotFocus="TextBox_SelectAllOnFocus" />
 
             <Label Grid.Row="4" Grid.ColumnSpan="2" Content="Year" FontWeight="Bold"/>
-            <TextBox Grid.Row="5" Grid.ColumnSpan="2" Width="100"  FontSize="15"  Name="YearTextBox" Text="{Binding NewEventYear}" GotFocus="TextBox_SelectAllOnFocus"  HorizontalAlignment="Left" />
+            <TextBox Grid.Row="5" Grid.ColumnSpan="2" Width="100"  FontSize="15"  Name="YearTextBox" Text="{Binding EditingEventYear}" GotFocus="TextBox_SelectAllOnFocus"  HorizontalAlignment="Left" />
 
             <Label Grid.Row="6" Grid.ColumnSpan="2" Content="Month" FontWeight="Bold"/>
-            <TextBox Grid.Row="7" Grid.ColumnSpan="2" Width="100"  FontSize="15"  Name="MonthTextBox" Text="{Binding NewEventMonth}" GotFocus="TextBox_SelectAllOnFocus"  HorizontalAlignment="Left" />
+            <TextBox Grid.Row="7" Grid.ColumnSpan="2" Width="100"  FontSize="15"  Name="MonthTextBox" Text="{Binding EditingEventMonth}" GotFocus="TextBox_SelectAllOnFocus"  HorizontalAlignment="Left" />
 
             <Label Grid.Row="8" Grid.ColumnSpan="2" Content="Day" FontWeight="Bold"/>
-            <TextBox Grid.Row="9" Grid.ColumnSpan="2" Width="100"  FontSize="15"  Name="DayTextBox" Text="{Binding NewEventDay}" GotFocus="TextBox_SelectAllOnFocus"  HorizontalAlignment="Left" />
+            <TextBox Grid.Row="9" Grid.ColumnSpan="2" Width="100"  FontSize="15"  Name="DayTextBox" Text="{Binding EditingEventDay}" GotFocus="TextBox_SelectAllOnFocus"  HorizontalAlignment="Left" />
+
+            <Label Grid.Row="10" Grid.ColumnSpan="2" Content="Category" FontWeight="Bold"/>
+            <ComboBox Grid.Row="11" Grid.ColumnSpan="2" ItemsSource="{Binding Path=ListOfCategories}">
+            </ComboBox>
+
+            <Label Grid.Row="12" Grid.ColumnSpan="2" Content="Note" FontWeight="Bold"/>
+            <TextBox Grid.Row="13" Grid.ColumnSpan="2"  FontSize="12"  Name="NoteTextBox" Text="{Binding EditingEventNote}" />
+
 
             <!--Background for Hover-->
-            <Button Style="{StaticResource MaterialDesignFlatButton}" Background="CornflowerBlue"  Grid.Row="11" Width="80" Height="30" IsEnabled="False"/>
-            <Button Style="{StaticResource MaterialDesignFlatButton}" Foreground="White" Background="DodgerBlue"  Grid.Row="11" Content="Submit" Name="NewEventSubmitButton" IsDefault="true" Click="btnSubmitNewEvent_Click" Width="80" Height="30"/>
+            <Button Style="{StaticResource MaterialDesignFlatButton}" Background="CornflowerBlue"  Grid.Row="15" Width="80" Height="30" IsEnabled="False"/>
+            <Button Style="{StaticResource MaterialDesignFlatButton}" Foreground="White" Background="DodgerBlue"  Grid.Row="15" Content="Submit" Name="NewEventSubmitButton" IsDefault="true" Click="btnSubmitNewEvent_Click" Width="80" Height="30"/>
 
 
             <!--Background for Hover-->
-            <Button Style="{StaticResource MaterialDesignFlatButton}" Background="LightGray"  Grid.Row="11" Grid.Column="1" IsEnabled="False" Width="80" Height="30"/>
-            <Button Style="{StaticResource MaterialDesignFlatButton}" Foreground="White" Background="Silver"  Grid.Row="11" Grid.Column="11" Content="Cancel" IsCancel="true" Click="btnCancelNewEvent_Click" Width="80" Height="30"/>
+            <Button Style="{StaticResource MaterialDesignFlatButton}" Background="LightGray"  Grid.Row="15" Grid.Column="1" IsEnabled="False" Width="80" Height="30"/>
+            <Button Style="{StaticResource MaterialDesignFlatButton}" Foreground="White" Background="Silver"  Grid.Row="15" Grid.Column="1" Content="Cancel" IsCancel="true" Click="btnCancelNewEvent_Click" Width="80" Height="30"/>
 
             <!--Background for Hover-->
-            <Button Style="{StaticResource MaterialDesignFlatButton}" Background="LightSalmon" IsEnabled="False" Grid.Row="13" Grid.ColumnSpan="2" Click="btnDeleteEvent_Click" Width="180" Height="30" Visibility="{Binding Path=ShowDeleteButton, Converter={StaticResource Converter}}" />
+            <Button Style="{StaticResource MaterialDesignFlatButton}" Background="LightSalmon" IsEnabled="False" Grid.Row="17" Grid.ColumnSpan="2" Click="btnDeleteEvent_Click" Width="180" Height="30" Visibility="{Binding Path=ShowDeleteButton, Converter={StaticResource Converter}}" />
             <Button Style="{StaticResource MaterialDesignFlatButton}" Foreground="White" Background="Salmon" Visibility="{Binding Path=ShowDeleteButton, Converter={StaticResource Converter}}" 
-                    Grid.Row="13" Grid.ColumnSpan="2" Click="btnDeleteEvent_Click" Width="180" Height="30">
+                    Grid.Row="17" Grid.ColumnSpan="2" Click="btnDeleteEvent_Click" Width="180" Height="30">
                 <Grid Grid.ColumnSpan="2">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition/>

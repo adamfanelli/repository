@@ -39,12 +39,16 @@ namespace TimelineLib
         public float EventFromLineHeight { get; set; }
         public float MinEventWidth { get; set; }
         public float MarkerHeight { get; set; }
-        public float eventBgMargin { get; set; }
+        public float EventBgMargin { get; set; }
         public uint EventTextCharacterSize { get; set; }
         public uint MarkerCharacterSize { get; set; }
         public uint MarkerHighlightedCharacterSize { get; set; }
 
+        public EventViewModel EventToDrawNote { get; set; }
+
         public EventViewModel EditingEvent { get; set; }
+        public float DisplayNoteDelayInSeconds { get; set; }
+        public Stopwatch DisplayNoteStopwatch { get; set; }
 
         private bool isSideColumnVisible;
         public bool IsSideColumnVisible
@@ -53,32 +57,39 @@ namespace TimelineLib
             set { isSideColumnVisible = value; NotifyPropertyChanged(); }
         }
 
-        private string newEventName;
-        public string NewEventName
+        private string editingEventName;
+        public string EditingEventName
         {
-            get { return newEventName; }
-            set { newEventName = value; NotifyPropertyChanged(); }
+            get { return editingEventName; }
+            set { editingEventName = value; NotifyPropertyChanged(); }
         }
 
-        private int newEventYear;
-        public int NewEventYear
+        private int editingEventYear;
+        public int EditingEventYear
         {
-            get { return newEventYear; }
-            set { newEventYear = value; NotifyPropertyChanged(); }
+            get { return editingEventYear; }
+            set { editingEventYear = value; NotifyPropertyChanged(); }
         }
 
-        private int newEventMonth;
-        public int NewEventMonth
+        private int editingEventMonth;
+        public int EditingEventMonth
         {
-            get { return newEventMonth; }
-            set { newEventMonth = value; NotifyPropertyChanged(); }
+            get { return editingEventMonth; }
+            set { editingEventMonth = value; NotifyPropertyChanged(); }
         }
 
-        private int newEventDay;
-        public int NewEventDay
+        private int editingEventDay;
+        public int EditingEventDay
         {
-            get { return newEventDay; }
-            set { newEventDay = value; NotifyPropertyChanged(); }
+            get { return editingEventDay; }
+            set { editingEventDay = value; NotifyPropertyChanged(); }
+        }
+
+        private string editingEventNote;
+        public string EditingEventNote
+        {
+            get { return editingEventNote; }
+            set { editingEventNote = value; NotifyPropertyChanged(); }
         }
 
         private string sideColumnHeader;
@@ -105,6 +116,8 @@ namespace TimelineLib
         public Font SecondaryFont { get; set; }
 
         public List<EventViewModel> ListOfEvents { get; set; }
+        public List<Category> ListOfCategories { get; set; }
+
 
         public event PropertyChangedEventHandler PropertyChanged;
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
@@ -116,6 +129,7 @@ namespace TimelineLib
         {
             Line = new RectangleShape();
             ListOfEvents = new List<EventViewModel>();
+            ListOfCategories = new List<Category>();
 
             LineThickness = 4;
             Zoom = 1.0f;
@@ -125,11 +139,15 @@ namespace TimelineLib
             ScrollSpeed = 5f;
 
             EventTextCharacterSize = 24;
+            EventBgMargin = 5;
             MarkerCharacterSize = 15;
             MarkerHighlightedCharacterSize = 18;
             IntervalLengthPx = 60;
             IntervalThresholdPx = 60;
             MarkerHeight = 14;
+
+            DisplayNoteDelayInSeconds = 1.0f;
+            EventToDrawNote = null;
 
             PrimaryFont = new Font(Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName +
             "\\Fonts\\GeosansLight.ttf");
@@ -172,8 +190,16 @@ namespace TimelineLib
 
         public void AddEvent(EventViewModel e)
         {
+            //e.Category = ListOfCategories[(int)e.CategoryID];
+            e.Category = ListOfCategories.Find(x => x.ID == e.CategoryID);
+
             ListOfEvents.Add(e);
             ListOfEvents = ListOfEvents.OrderBy(x => x.StartYear).ToList();
+        }
+
+        public void AddCategory(Category c)
+        {
+            ListOfCategories.Add(c);
         }
 
         public void DrawLine(RenderWindow window)
@@ -186,7 +212,7 @@ namespace TimelineLib
         }
 
         private List<int> Intervals = new List<int>() { 1, 2, 5, 10, 20, 25, 50, 100 };
-        private List<int> MonthIntervals = new List<int>() { 1, 2, 3, 5, 11 };
+        private List<int> MonthIntervals = new List<int>() { 1, 3, 5, 11 };
         private List<string> Months = new List<string>() { "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec" };
 
         public void DrawMarkers(RenderWindow window)
@@ -373,7 +399,7 @@ namespace TimelineLib
         public void DrawEvents(RenderWindow window)
         {
             // An array of the Previous X for each level
-            List<float> PrevRightSideX = new List<float>() { 0 };
+            List<float> PrevRightPos = new List<float>() { 0 };
 
             // Items in these lists will be drawn at the end of each loop
             List<Shape> ShapesToDraw = new List<Shape>();
@@ -383,11 +409,11 @@ namespace TimelineLib
             foreach (EventViewModel e in ListOfEvents)
             {
                 // Set X (horizontal center of event)
-                double x = OffsetX + 
+                e.X = OffsetX + 
                     Zoom * ( 
-                    IntervalLengthPx * e.StartYear                  // Year
-                    + IntervalLengthPx/12 * (e.StartMonth - 1)      // Month
-                    + IntervalLengthPx/365 * e.StartDay             // Day
+                    IntervalLengthPx * e.StartYear              // Year
+                    + IntervalLengthPx/12 * e.StartMonth        // Month
+                    + IntervalLengthPx/365 * e.StartDay         // Day
                     );
 
                 // Create Text
@@ -397,26 +423,25 @@ namespace TimelineLib
 
                 // Initialize some variables
                 float eventHeight = 40;
-                float eventBgMargin = 5;
                 float EventFromLineHeight = 60;
                 float MinEventWidth = 60;
                 float circleBorderRadius = eventHeight / 2;
 
-                float eventLeftPos = (float)(x - text.GetLocalBounds().Width / 2 - eventBgMargin - circleBorderRadius);
-                float eventRightPos = (float)(x + text.GetLocalBounds().Width / 2 + eventBgMargin + circleBorderRadius);
+                float eventLeftPos = (float)(e.X - text.GetLocalBounds().Width / 2 - EventBgMargin - circleBorderRadius);
+                float eventRightPos = (float)(e.X + text.GetLocalBounds().Width / 2 + EventBgMargin + circleBorderRadius);
 
-                e.Size = new Vector2f(text.GetLocalBounds().Width + eventBgMargin * 2 + circleBorderRadius * 2, eventHeight);
+                e.Size = new Vector2f(text.GetLocalBounds().Width + EventBgMargin * 2 + circleBorderRadius * 2, eventHeight);
 
                 // Set Level
                 int level = 1;
 
                 if (e != ListOfEvents.First())
                 {
-                    while(eventLeftPos < PrevRightSideX[level])
+                    while(eventLeftPos < PrevRightPos[level])
                     {
                         level++;
 
-                        if (level >= PrevRightSideX.Count) break;
+                        if (level >= PrevRightPos.Count) break;
                     }
                 }
 
@@ -424,15 +449,18 @@ namespace TimelineLib
                 e.ScreenPos = new Vector2f(eventLeftPos, LineTopY - (level * EventFromLineHeight) - eventHeight);
 
                 // Set Text Position
-                text.Position = new Vector2f((float)x - text.GetLocalBounds().Width / 2, e.ScreenPos.Y + eventBgMargin);
+                text.Position = new Vector2f((float)e.X - text.GetLocalBounds().Width / 2, e.ScreenPos.Y + EventBgMargin);
 
                 // Change color of background on hover or while editing
-                Color bgColor = (e.IsMouseOver(window) || e == EditingEvent) ? Theme.EventHoverColor : Theme.EventBackgroundColor;
+                Color bgColor = 
+                    (e.IsMouseOver(window) || e == EditingEvent) 
+                    ? e.Category == null ? Theme.EventHoverColor : e.Category.BackgroundColorHover
+                    : e.Category == null ? Theme.EventBackgroundColor : e.Category.BackgroundColor;
 
                 // Background Rectangle
                 RectangleShape textBg = new RectangleShape() {
-                    Position = new Vector2f(text.Position.X - eventBgMargin, e.ScreenPos.Y),
-                    Size = new Vector2f(text.GetLocalBounds().Width + eventBgMargin * 2, eventHeight),
+                    Position = new Vector2f(text.Position.X - EventBgMargin, e.ScreenPos.Y),
+                    Size = new Vector2f(text.GetLocalBounds().Width + EventBgMargin * 2, eventHeight),
                     FillColor = bgColor
                 };
                 ShapesToDraw.Add(textBg);
@@ -455,10 +483,10 @@ namespace TimelineLib
                 // Set PrevX
                 float prevx = e.ScreenPos.X + e.Size.X;
 
-                if (level >= PrevRightSideX.Count)
-                    PrevRightSideX.Add(prevx);
+                if (level >= PrevRightPos.Count)
+                    PrevRightPos.Add(prevx);
                 else
-                    PrevRightSideX[level] = prevx;
+                    PrevRightPos[level] = prevx;
 
 
                 // Background Triangle
@@ -510,6 +538,39 @@ namespace TimelineLib
             foreach(Text text in TextToDraw)
                 window.Draw(text);
 
+
+            if(EventToDrawNote != null)
+            {
+                Text noteText = new Text(EventToDrawNote.Note, PrimaryFont);
+                noteText.CharacterSize = EventTextCharacterSize;
+                noteText.FillColor = Theme.TextColor;
+                noteText.Position = new Vector2f((float)EventToDrawNote.X - noteText.GetLocalBounds().Width / 2, EventToDrawNote.ScreenPos.Y - 60);
+
+                RectangleShape noteBg = new RectangleShape();
+                noteBg.Position = noteText.Position - new Vector2f(EventBgMargin, EventBgMargin);
+                noteBg.Size = new Vector2f(noteText.GetLocalBounds().Width + EventBgMargin * 2, noteText.GetLocalBounds().Height + EventBgMargin * 4);
+                noteBg.FillColor = Theme.EventNoteBackgroundColor;
+
+                CircleShape lCircle = new CircleShape()
+                {
+                    Radius = noteBg.Size.Y / 2,
+                    Position = noteBg.Position - new Vector2f(noteBg.Size.Y / 2, 0),
+                    FillColor = Theme.EventNoteBackgroundColor
+                };
+
+                CircleShape rCircle = new CircleShape()
+                {
+                    Radius = noteBg.Size.Y / 2,
+                    Position = lCircle.Position + new Vector2f(noteBg.Size.X, 0),
+                    FillColor = Theme.EventNoteBackgroundColor
+                };
+
+                window.Draw(noteBg);
+                window.Draw(lCircle);
+                window.Draw(rCircle);
+                window.Draw(noteText);
+
+            }
         }
     }
 }
