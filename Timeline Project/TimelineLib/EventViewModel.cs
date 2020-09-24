@@ -22,6 +22,10 @@ namespace TimelineLib
         public int StartMonth { get; set; }
         public int StartDay { get; set; }
         public int StartHour { get; set; }
+        public int EndYear { get; set; }
+        public int EndMonth { get; set; }
+        public int EndDay { get; set; }
+        public int EndHour { get; set; }
         public string Note { get; set; }
 
         public Vector2f ScreenPos { get; set; }
@@ -40,6 +44,11 @@ namespace TimelineLib
             this.StartYear = e.StartYear;
             this.StartMonth = e.StartMonth;
             this.StartDay = e.StartDay;
+            this.StartHour = e.StartHour;
+            this.EndYear = e.EndYear;
+            this.EndMonth = e.EndMonth;
+            this.EndDay = e.EndDay;
+            this.EndHour = e.EndHour;
             this.CategoryID = e.CategoryID;
             this.Note = e.Note;
 
@@ -54,6 +63,11 @@ namespace TimelineLib
             e.StartYear = this.StartYear;
             e.StartMonth = this.StartMonth;
             e.StartDay = this.StartDay;
+            e.StartHour = this.StartHour;
+            e.EndYear = this.EndYear;
+            e.EndMonth = this.EndMonth;
+            e.EndDay = this.EndDay;
+            e.EndHour = this.EndHour;
             e.CategoryID = this.Category?.ID;
             e.Note = this.Note;
 
