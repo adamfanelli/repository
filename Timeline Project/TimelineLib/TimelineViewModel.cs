@@ -64,25 +64,46 @@ namespace TimelineLib
             set { editingEventName = value; NotifyPropertyChanged(); }
         }
 
-        private int editingEventYear;
-        public int EditingEventYear
+        private int editingEventStartYear;
+        public int EditingEventStartYear
         {
-            get { return editingEventYear; }
-            set { editingEventYear = value; NotifyPropertyChanged(); }
+            get { return editingEventStartYear; }
+            set { editingEventStartYear = value; NotifyPropertyChanged(); }
         }
 
-        private int editingEventMonth;
-        public int EditingEventMonth
+        private int editingEventStartMonth;
+        public int EditingEventStartMonth
         {
-            get { return editingEventMonth; }
-            set { editingEventMonth = value; NotifyPropertyChanged(); }
+            get { return editingEventStartMonth; }
+            set { editingEventStartMonth = value; NotifyPropertyChanged(); }
         }
 
-        private int editingEventDay;
-        public int EditingEventDay
+        private int editingEventStartDay;
+        public int EditingEventStartDay
         {
-            get { return editingEventDay; }
-            set { editingEventDay = value; NotifyPropertyChanged(); }
+            get { return editingEventStartDay; }
+            set { editingEventStartDay = value; NotifyPropertyChanged(); }
+        }
+        
+        private int? editingEventEndYear;
+        public int? EditingEventEndYear
+        {
+            get { return editingEventEndYear; }
+            set { editingEventEndYear = value; NotifyPropertyChanged(); }
+        }
+
+        private int? editingEventEndMonth;
+        public int? EditingEventEndMonth
+        {
+            get { return editingEventEndMonth; }
+            set { editingEventEndMonth = value; NotifyPropertyChanged(); }
+        }
+
+        private int? editingEventEndDay;
+        public int? EditingEventEndDay
+        {
+            get { return editingEventEndDay; }
+            set { editingEventEndDay = value; NotifyPropertyChanged(); }
         }
 
         private string editingEventNote;
@@ -538,7 +559,7 @@ namespace TimelineLib
             foreach(Text text in TextToDraw)
                 window.Draw(text);
 
-
+            // Draw Note
             if(EventToDrawNote != null)
             {
                 Text noteText = new Text(EventToDrawNote.Note, PrimaryFont);

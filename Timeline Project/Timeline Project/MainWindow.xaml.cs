@@ -285,9 +285,12 @@ namespace Timeline_Project
             {
                 model.SideColumnHeader = "Add New Event";
                 model.EditingEventName = "";
-                model.EditingEventYear = model.YearAtMouse;
-                model.EditingEventMonth = 0;
-                model.EditingEventDay = 0;
+                model.EditingEventStartYear = model.YearAtMouse;
+                model.EditingEventStartMonth = 0;
+                model.EditingEventStartDay = 0;
+                model.EditingEventEndYear = null;
+                model.EditingEventEndMonth = null;
+                model.EditingEventEndDay = null;
                 model.EditingEventNote = null;
             }
             // Edit Event Form (if a model is passed in)
@@ -295,9 +298,12 @@ namespace Timeline_Project
             {
                 model.SideColumnHeader = "Edit Event";
                 model.EditingEventName = eventViewModel.Name;
-                model.EditingEventYear = eventViewModel.StartYear;
-                model.EditingEventMonth = eventViewModel.StartMonth;
-                model.EditingEventDay = eventViewModel.StartDay;
+                model.EditingEventStartYear = eventViewModel.StartYear;
+                model.EditingEventStartMonth = eventViewModel.StartMonth;
+                model.EditingEventStartDay = eventViewModel.StartDay;
+                model.EditingEventEndYear = eventViewModel.EndYear;
+                model.EditingEventEndMonth = eventViewModel.EndMonth;
+                model.EditingEventEndDay = eventViewModel.EndDay;
                 model.EditingEventNote = eventViewModel.Note;
                 model.ShowDeleteButton = true;
 
@@ -499,9 +505,12 @@ namespace Timeline_Project
             if (model.EditingEvent != null)
             {
                 model.EditingEvent.Name = model.EditingEventName;
-                model.EditingEvent.StartYear = model.EditingEventYear;
-                model.EditingEvent.StartMonth = model.EditingEventMonth;
-                model.EditingEvent.StartDay = model.EditingEventDay;
+                model.EditingEvent.StartYear = model.EditingEventStartYear;
+                model.EditingEvent.StartMonth = model.EditingEventStartMonth;
+                model.EditingEvent.StartDay = model.EditingEventStartDay;
+                model.EditingEvent.EndYear = model.EditingEventEndYear;
+                model.EditingEvent.EndMonth = model.EditingEventEndMonth;
+                model.EditingEvent.EndDay = model.EditingEventEndDay;
                 model.EditingEvent.Note = model.EditingEventNote;
 
                 model.EditingEvent = null;
@@ -511,9 +520,12 @@ namespace Timeline_Project
                 model.AddEvent(new EventViewModel().SetViewModel(new EventModel() 
                 { 
                     Name = model.EditingEventName, 
-                    StartYear = model.EditingEventYear,
-                    StartMonth = model.EditingEventMonth,
-                    StartDay = model.EditingEventDay,
+                    StartYear = model.EditingEventStartYear,
+                    StartMonth = model.EditingEventStartMonth,
+                    StartDay = model.EditingEventStartDay,
+                    EndYear = model.EditingEventEndYear,
+                    EndMonth = model.EditingEventEndMonth,
+                    EndDay = model.EditingEventEndDay,
                     Note = model.EditingEventNote
                 }));
             }
@@ -527,7 +539,7 @@ namespace Timeline_Project
         
         private void btnDeleteEvent_Click(object sender, RoutedEventArgs e)
         {
-            if(model.IsSideColumnVisible)
+            if(model.IsSideColumnVisible && model.EditingEvent != null)
             {
                 model.ListOfEvents.Remove(model.EditingEvent);
 
@@ -543,7 +555,7 @@ namespace Timeline_Project
 
         private void btnNewFile_Click(object sender, RoutedEventArgs e)
         {
-            this.LoadTimeline();
+            LoadTimeline();
         }
 
         private void btnSaveFile_Click(object sender, RoutedEventArgs e)
