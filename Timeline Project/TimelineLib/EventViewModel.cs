@@ -78,7 +78,7 @@ namespace TimelineLib
         {
             return Mouse.GetPosition().X - window.Position.X > ScreenPos.X &&
                    Mouse.GetPosition().X - window.Position.X < ScreenPos.X + Size.X &&
-                   Mouse.GetPosition().Y - window.Position.Y > ScreenPos.Y &&
+                   Mouse.GetPosition().Y - window.Position.Y > ScreenPos.Y - (this.EndYear != null ? 15 : 0) &&
                    Mouse.GetPosition().Y - window.Position.Y < ScreenPos.Y + Size.Y;
         }
     }

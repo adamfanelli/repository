@@ -420,134 +420,208 @@ namespace TimelineLib
         public void DrawEvents(RenderWindow window)
         {
             // An array of the Previous X for each level
-            List<float> PrevRightPos = new List<float>() { 0 };
+            List<float> PrevRightPosTop = new List<float>() { 0 };
+            List<float> PrevRightPosBottom = new List<float>() { 0 };
 
             // Items in these lists will be drawn at the end of each loop
             List<Shape> ShapesToDraw = new List<Shape>();
             List<Text> TextToDraw = new List<Text>();
             List<VertexArray> VertexArraysToDraw = new List<VertexArray>();
 
+
+
+            // Initialize some variables
+            float eventHeight = 40;
+            float EventFromLineHeight = 60;
+            float MinEventWidth = 60;
+            float circleBorderRadius = eventHeight / 2;
+
             foreach (EventViewModel e in ListOfEvents)
             {
-                // Set X (horizontal center of event)
-                e.X = OffsetX + 
-                    Zoom * ( 
-                    IntervalLengthPx * e.StartYear              // Year
-                    + IntervalLengthPx/12 * e.StartMonth        // Month
-                    + IntervalLengthPx/365 * e.StartDay         // Day
-                    );
 
-                // Create Text
-                Text text = new Text(e.Name, PrimaryFont);
-                text.CharacterSize = EventTextCharacterSize;
-                text.FillColor = Theme.TextColor;
-
-                // Initialize some variables
-                float eventHeight = 40;
-                float EventFromLineHeight = 60;
-                float MinEventWidth = 60;
-                float circleBorderRadius = eventHeight / 2;
-
-                float eventLeftPos = (float)(e.X - text.GetLocalBounds().Width / 2 - EventBgMargin - circleBorderRadius);
-                float eventRightPos = (float)(e.X + text.GetLocalBounds().Width / 2 + EventBgMargin + circleBorderRadius);
-
-                e.Size = new Vector2f(text.GetLocalBounds().Width + EventBgMargin * 2 + circleBorderRadius * 2, eventHeight);
-
-                // Set Level
-                int level = 1;
-
-                if (e != ListOfEvents.First())
+                // If the event has an EndYear, draw a timespan. Otherwise, draw an event.
+                if (e.EndYear != null)
                 {
-                    while(eventLeftPos < PrevRightPos[level])
+                    double leftX = OffsetX +
+                        Zoom * (
+                        IntervalLengthPx * e.StartYear              // Year
+                        + IntervalLengthPx / 12 * e.StartMonth        // Month
+                        + IntervalLengthPx / 365 * e.StartDay         // Day
+                        );
+                    
+                    double rightX = OffsetX +
+                        Zoom * (
+                        IntervalLengthPx * e.EndYear ?? 0            // Year
+                        + IntervalLengthPx / 12 * e.EndMonth ?? 0        // Month
+                        + IntervalLengthPx / 365 * e.EndDay ?? 0        // Day
+                        );
+
+                    // Set Level
+                    int level = 1;
+
+                    if (PrevRightPosBottom.Count > 1)
                     {
-                        level++;
+                        while (leftX < PrevRightPosBottom[level])
+                        {
+                            level++;
 
-                        if (level >= PrevRightPos.Count) break;
+                            if (level >= PrevRightPosBottom.Count) break;
+                        }
                     }
+
+                    // Set Screen Position and Size
+                    e.ScreenPos = new Vector2f((float)leftX, LineTopY + LineThickness + (level * EventFromLineHeight));
+                    e.Size = new Vector2f ((float)(rightX - leftX), eventHeight / 2);
+
+                    // Change color of background on hover or while editing
+                    Color bgColor =
+                        (e.IsMouseOver(window) || e == EditingEvent)
+                        ? e.Category == null ? Theme.EventHoverColor : e.Category.BackgroundColorHover
+                        : e.Category == null ? Theme.EventBackgroundColor : e.Category.BackgroundColor;
+
+                    // Background Rectangle
+                    RectangleShape textBg = new RectangleShape()
+                    {
+                        Position = e.ScreenPos,
+                        Size = e.Size,
+                        FillColor = bgColor
+                    };
+                    ShapesToDraw.Add(textBg);
+
+                    // Create Text
+                    Text text = new Text(e.Name, PrimaryFont);
+                    text.CharacterSize = EventTextCharacterSize - 5;
+                    text.FillColor = Theme.TextColor;
+                    text.Position = new Vector2f(e.ScreenPos.X + 10, e.ScreenPos.Y - 20);
+                    TextToDraw.Add(text);
+
+                    // Set PrevX
+                    float prevx = e.ScreenPos.X + e.Size.X;
+
+                    if (level >= PrevRightPosBottom.Count)
+                        PrevRightPosBottom.Add(prevx);
+                    else
+                        PrevRightPosBottom[level] = prevx;
                 }
-
-                // Set ScreenPos of Event (this includes borders)
-                e.ScreenPos = new Vector2f(eventLeftPos, LineTopY - (level * EventFromLineHeight) - eventHeight);
-
-                // Set Text Position
-                text.Position = new Vector2f((float)e.X - text.GetLocalBounds().Width / 2, e.ScreenPos.Y + EventBgMargin);
-
-                // Change color of background on hover or while editing
-                Color bgColor = 
-                    (e.IsMouseOver(window) || e == EditingEvent) 
-                    ? e.Category == null ? Theme.EventHoverColor : e.Category.BackgroundColorHover
-                    : e.Category == null ? Theme.EventBackgroundColor : e.Category.BackgroundColor;
-
-                // Background Rectangle
-                RectangleShape textBg = new RectangleShape() {
-                    Position = new Vector2f(text.Position.X - EventBgMargin, e.ScreenPos.Y),
-                    Size = new Vector2f(text.GetLocalBounds().Width + EventBgMargin * 2, eventHeight),
-                    FillColor = bgColor
-                };
-                ShapesToDraw.Add(textBg);
-
-                // Background Circular Borders
-                CircleShape lCircle = new CircleShape() {
-                    Radius = circleBorderRadius,
-                    Position = new Vector2f(eventLeftPos, e.ScreenPos.Y),
-                    FillColor = bgColor
-                };
-                ShapesToDraw.Add(lCircle);
-
-                CircleShape rCircle = new CircleShape() {
-                    Radius = circleBorderRadius,
-                    Position = new Vector2f(eventRightPos - circleBorderRadius * 2, e.ScreenPos.Y),
-                    FillColor = bgColor
-                };
-                ShapesToDraw.Add(rCircle);
-
-                // Set PrevX
-                float prevx = e.ScreenPos.X + e.Size.X;
-
-                if (level >= PrevRightPos.Count)
-                    PrevRightPos.Add(prevx);
                 else
-                    PrevRightPos[level] = prevx;
-
-
-                // Background Triangle
-                VertexArray bgTriangle = new VertexArray(PrimitiveType.Triangles, 3);
-                bgTriangle[0] = new Vertex(new Vector2f(text.Position.X + text.GetLocalBounds().Width / 2 - 8, textBg.Position.Y + textBg.Size.Y), bgColor);
-                bgTriangle[1] = new Vertex(new Vector2f(text.Position.X + text.GetLocalBounds().Width / 2 + 8, textBg.Position.Y + textBg.Size.Y), bgColor);
-                bgTriangle[2] = new Vertex(new Vector2f(text.Position.X + text.GetLocalBounds().Width / 2, textBg.Position.Y + textBg.Size.Y + 8), bgColor);
-                VertexArraysToDraw.Add(bgTriangle);
-                
-                // Connector Triangle
-                VertexArray connectorTriangle = new VertexArray(PrimitiveType.Triangles, 3);
-                connectorTriangle[0] = new Vertex(new Vector2f(text.Position.X + text.GetLocalBounds().Width / 2 - 8, LineTopY - 8), Theme.TextColor);
-                connectorTriangle[1] = new Vertex(new Vector2f(text.Position.X + text.GetLocalBounds().Width / 2 + 8, LineTopY - 8), Theme.TextColor);
-                connectorTriangle[2] = new Vertex(new Vector2f(text.Position.X + text.GetLocalBounds().Width / 2, LineTopY), Theme.TextColor);
-
-                // Connector Dashed Line    (draw noDashes dashes per level)
-                int noDashes = 4;
-                int dashThickness = 2;
-                for(int i = 0; i < noDashes * level; i++)
                 {
-                    RectangleShape dash = new RectangleShape();
-                    dash.FillColor = Theme.TextColor;
-
-                    float bottomOfTextBox = LineTopY - EventFromLineHeight * level;
-
-                    dash.Position = new Vector2f(
-                        text.Position.X + text.GetLocalBounds().Width / 2 - dashThickness/2,
-
-                        bottomOfTextBox + i * ((LineTopY - bottomOfTextBox) / (noDashes * level))                                          // i * ((EventFromLineHeight * level) / (noDashes * level))
-
-                        );
-                    dash.Size = new Vector2f(
-                        dashThickness,
-                        (LineTopY - bottomOfTextBox) / (noDashes * level * 2)
+                    // Set X (horizontal center of event)
+                    e.X = OffsetX +
+                        Zoom * (
+                        IntervalLengthPx * e.StartYear              // Year
+                        + IntervalLengthPx / 12 * e.StartMonth        // Month
+                        + IntervalLengthPx / 365 * e.StartDay         // Day
                         );
 
-                    window.Draw(dash);
+                    // Create Text
+                    Text text = new Text(e.Name, PrimaryFont);
+                    text.CharacterSize = EventTextCharacterSize;
+                    text.FillColor = Theme.TextColor;
+
+                    float eventLeftPos = (float)(e.X - text.GetLocalBounds().Width / 2 - EventBgMargin - circleBorderRadius);
+                    float eventRightPos = (float)(e.X + text.GetLocalBounds().Width / 2 + EventBgMargin + circleBorderRadius);
+
+                    e.Size = new Vector2f(text.GetLocalBounds().Width + EventBgMargin * 2 + circleBorderRadius * 2, eventHeight);
+
+                    // Set Level
+                    int level = 1;
+
+                    if (PrevRightPosTop.Count > 1)
+                    {
+                        while (eventLeftPos < PrevRightPosTop[level])
+                        {
+                            level++;
+
+                            if (level >= PrevRightPosTop.Count) break;
+                        }
+                    }
+
+                    // Set ScreenPos of Event (this includes borders)
+                    e.ScreenPos = new Vector2f(eventLeftPos, LineTopY - (level * EventFromLineHeight) - eventHeight);
+
+                    // Set Text Position
+                    text.Position = new Vector2f((float)e.X - text.GetLocalBounds().Width / 2, e.ScreenPos.Y + EventBgMargin);
+
+                    // Change color of background on hover or while editing
+                    Color bgColor =
+                        (e.IsMouseOver(window) || e == EditingEvent)
+                        ? e.Category == null ? Theme.EventHoverColor : e.Category.BackgroundColorHover
+                        : e.Category == null ? Theme.EventBackgroundColor : e.Category.BackgroundColor;
+
+                    // Background Rectangle
+                    RectangleShape textBg = new RectangleShape()
+                    {
+                        Position = new Vector2f(text.Position.X - EventBgMargin, e.ScreenPos.Y),
+                        Size = new Vector2f(text.GetLocalBounds().Width + EventBgMargin * 2, eventHeight),
+                        FillColor = bgColor
+                    };
+                    ShapesToDraw.Add(textBg);
+
+                    // Background Circular Borders
+                    CircleShape lCircle = new CircleShape()
+                    {
+                        Radius = circleBorderRadius,
+                        Position = new Vector2f(eventLeftPos, e.ScreenPos.Y),
+                        FillColor = bgColor
+                    };
+                    ShapesToDraw.Add(lCircle);
+
+                    CircleShape rCircle = new CircleShape()
+                    {
+                        Radius = circleBorderRadius,
+                        Position = new Vector2f(eventRightPos - circleBorderRadius * 2, e.ScreenPos.Y),
+                        FillColor = bgColor
+                    };
+                    ShapesToDraw.Add(rCircle);
+
+                    // Set PrevX
+                    float prevx = e.ScreenPos.X + e.Size.X;
+
+                    if (level >= PrevRightPosTop.Count)
+                        PrevRightPosTop.Add(prevx);
+                    else
+                        PrevRightPosTop[level] = prevx;
+
+
+                    // Background Triangle
+                    VertexArray bgTriangle = new VertexArray(PrimitiveType.Triangles, 3);
+                    bgTriangle[0] = new Vertex(new Vector2f(text.Position.X + text.GetLocalBounds().Width / 2 - 8, textBg.Position.Y + textBg.Size.Y), bgColor);
+                    bgTriangle[1] = new Vertex(new Vector2f(text.Position.X + text.GetLocalBounds().Width / 2 + 8, textBg.Position.Y + textBg.Size.Y), bgColor);
+                    bgTriangle[2] = new Vertex(new Vector2f(text.Position.X + text.GetLocalBounds().Width / 2, textBg.Position.Y + textBg.Size.Y + 8), bgColor);
+                    VertexArraysToDraw.Add(bgTriangle);
+
+                    // Connector Triangle
+                    VertexArray connectorTriangle = new VertexArray(PrimitiveType.Triangles, 3);
+                    connectorTriangle[0] = new Vertex(new Vector2f(text.Position.X + text.GetLocalBounds().Width / 2 - 8, LineTopY - 8), Theme.TextColor);
+                    connectorTriangle[1] = new Vertex(new Vector2f(text.Position.X + text.GetLocalBounds().Width / 2 + 8, LineTopY - 8), Theme.TextColor);
+                    connectorTriangle[2] = new Vertex(new Vector2f(text.Position.X + text.GetLocalBounds().Width / 2, LineTopY), Theme.TextColor);
+
+                    // Connector Dashed Line    (draw noDashes dashes per level)
+                    int noDashes = 4;
+                    int dashThickness = 2;
+                    for (int i = 0; i < noDashes * level; i++)
+                    {
+                        RectangleShape dash = new RectangleShape();
+                        dash.FillColor = Theme.TextColor;
+
+                        float bottomOfTextBox = LineTopY - EventFromLineHeight * level;
+
+                        dash.Position = new Vector2f(
+                            text.Position.X + text.GetLocalBounds().Width / 2 - dashThickness / 2,
+
+                            bottomOfTextBox + i * ((LineTopY - bottomOfTextBox) / (noDashes * level))                                          // i * ((EventFromLineHeight * level) / (noDashes * level))
+
+                            );
+                        dash.Size = new Vector2f(
+                            dashThickness,
+                            (LineTopY - bottomOfTextBox) / (noDashes * level * 2)
+                            );
+
+                        window.Draw(dash);
+                    }
+                    VertexArraysToDraw.Add(connectorTriangle);
+                    TextToDraw.Add(text);
                 }
-                VertexArraysToDraw.Add(connectorTriangle);
-                TextToDraw.Add(text);
             }
 
             foreach (Shape shape in ShapesToDraw)
