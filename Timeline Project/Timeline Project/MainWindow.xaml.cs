@@ -7,29 +7,18 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Forms;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
 using TimelineLib;
 using TimelineLib.Themes;
-using Color = SFML.Graphics.Color;
-using Keyboard = SFML.Window.Keyboard;
-using KeyEventArgs = SFML.Window.KeyEventArgs;
-using Window = SFML.Window.Window;
-using Mouse = SFML.Window.Mouse;
 using System.Runtime.CompilerServices;
 using System.ComponentModel;
 using Newtonsoft.Json;
+
+using Color = SFML.Graphics.Color;
+using Mouse = SFML.Window.Mouse;
 using SaveFileDialog = Microsoft.Win32.SaveFileDialog;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 
@@ -54,8 +43,8 @@ namespace Timeline_Project
         public Vector2f PrevMousePos;
         public Vector2f LastClickedPos;
 
-        public float DefaultRefreshRate = 0.0005f;
-        public float RefreshCount = 0;
+        private Stopwatch RefreshScreenStopwatch;
+        public float RefreshRateInSeconds = 0.5f;
 
         public Stopwatch DisplayEventNoteStopwatch;
 
@@ -78,7 +67,7 @@ namespace Timeline_Project
                 PriorityLevel = 1
             });
 
-            // Initialize a test event
+            // Initialize a test event and a test timespan
             model.AddEvent(new EventViewModel().SetViewModel(new EventModel()
             {
                 CategoryID = 1,
@@ -90,12 +79,14 @@ namespace Timeline_Project
             model.AddEvent(new EventViewModel().SetViewModel(new EventModel()
             {
                 CategoryID = 1,
-                Name = "Whoa, it's an event",
+                Name = "Whoa, it's a TIMESPAN",
                 StartYear = 30,
+                EndYear = 50,
                 Note = "OOOOGA       B O O G A"
             }));
 
             DisplayEventNoteStopwatch = new Stopwatch();
+            RefreshScreenStopwatch = new Stopwatch();
         }
 
         private void CreateRenderWindow()
@@ -117,6 +108,8 @@ namespace Timeline_Project
         {
             UpdateWindow();
 
+            RefreshScreenStopwatch.Start();
+
             Thread backgroundThread = new Thread(() =>
                 {
                     while (_renderWindow.IsOpen)
@@ -127,18 +120,12 @@ namespace Timeline_Project
                             model.YearAtMouse = (int)Math.Round(
                                 (Mouse.GetPosition().X - _renderWindow.Position.X - model.OffsetX) / (model.IntervalLengthPx * model.Zoom));
 
-
                             bool Update;
 
-                            // Check if a Note needs to be drawn
-
-
-                            // Update Window
-                            RefreshCount += DefaultRefreshRate;
-                            if (RefreshCount > 0.5)
+                            if(RefreshScreenStopwatch.ElapsedMilliseconds > RefreshRateInSeconds * 1000)
                             {
                                 Update = true;
-                                RefreshCount = 0;
+                                RefreshScreenStopwatch.Restart();
                             }
                             else
                             {
@@ -148,8 +135,9 @@ namespace Timeline_Project
                             }
 
 
-                            bool done = false;
+                            // Check if a note needs to be drawn
 
+                            bool DrawNote = false;
                             foreach (EventViewModel n in model.ListOfEvents)
                             {
                                 if (n.IsMouseOver(_renderWindow))
@@ -160,7 +148,7 @@ namespace Timeline_Project
                                     // Check if Note needs to be drawn
                                     if (n.Note != null)
                                     {
-                                        done = true;
+                                        DrawNote = true;
 
                                         if (!DisplayEventNoteStopwatch.IsRunning) DisplayEventNoteStopwatch.Start();
 
@@ -172,7 +160,7 @@ namespace Timeline_Project
                                 }
                             }
 
-                            if (!done)
+                            if (!DrawNote)
                             {
                                 DisplayEventNoteStopwatch.Stop();
                                 DisplayEventNoteStopwatch.Reset();
@@ -205,7 +193,8 @@ namespace Timeline_Project
                 });
             }
 
-            this.model = null;
+            if(this.model != null) 
+                this.model = null;
 
             this.model = timelineViewModel;
 
@@ -217,11 +206,12 @@ namespace Timeline_Project
 
             // Set the Zoom
             this.ResetZoom();
-
         }
 
         private void UpdateWindow()
         {
+            this.model.Debug_NoRefreshes += 1;  // Display Number of Refreshes for Debugging
+
             //      Process Events
             this._renderWindow.DispatchEvents();
 
@@ -512,8 +502,6 @@ namespace Timeline_Project
                 model.EditingEvent.EndMonth = model.EditingEventEndMonth;
                 model.EditingEvent.EndDay = model.EditingEventEndDay;
                 model.EditingEvent.Note = model.EditingEventNote;
-
-                model.EditingEvent = null;
             }
             else
             {

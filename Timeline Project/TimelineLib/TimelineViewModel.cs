@@ -16,26 +16,31 @@ namespace TimelineLib
 {
     public class TimelineViewModel : INotifyPropertyChanged
     {
+        // DEBUG
+        public int Debug_NoRefreshes { get; set; }
 
+        // GENERAL DATA
         public string Title { get; set; }
-
-        public Theme Theme;
+        public Theme Theme { get; set; }
 
         public RectangleShape Line { get; set; }
         public int LineThickness { get; set; }
-
-        public float IntervalLengthPx { get; set; }
-        public float IntervalThresholdPx { get; set; }
-
+        public float OffsetX { get; set; }
+        public float OffsetY { get; set; }
+        public float LineTopY { get; set; }
+        public Font PrimaryFont { get; set; }
+        public Font SecondaryFont { get; set; }
 
         public double Zoom { get; set; }
         public float ZoomSpeed { get; set; }
         public int ScrollCount { get; set; }
         public int ZoomMinCap { get; set; }
         public int ZoomMaxCap { get; set; }
-
         public float ScrollSpeed { get; set; }
+        public int YearAtMouse { get; set; }
 
+        public float IntervalLengthPx { get; set; }
+        public float IntervalThresholdPx { get; set; }
         public float EventFromLineHeight { get; set; }
         public float MinEventWidth { get; set; }
         public float MarkerHeight { get; set; }
@@ -45,11 +50,11 @@ namespace TimelineLib
         public uint MarkerHighlightedCharacterSize { get; set; }
 
         public EventViewModel EventToDrawNote { get; set; }
-
         public EventViewModel EditingEvent { get; set; }
-        public float DisplayNoteDelayInSeconds { get; set; }
-        public Stopwatch DisplayNoteStopwatch { get; set; }
 
+        public float DisplayNoteDelayInSeconds { get; set; }
+
+        // DATA CONTEXT VARIABLES
         private bool isSideColumnVisible;
         public bool IsSideColumnVisible
         {
@@ -127,19 +132,10 @@ namespace TimelineLib
             set { showDeleteButton = value; NotifyPropertyChanged(); }
         }
 
-        public int YearAtMouse { get; set; }
-
-
-        public float OffsetX { get; set; }
-        public float OffsetY { get; set; }
-        public float LineTopY { get; set; }
-        public Font PrimaryFont { get; set; }
-        public Font SecondaryFont { get; set; }
-
         public List<EventViewModel> ListOfEvents { get; set; }
         public List<Category> ListOfCategories { get; set; }
 
-
+        // Property Changed Event Handler
         public event PropertyChangedEventHandler PropertyChanged;
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
         {
@@ -151,14 +147,16 @@ namespace TimelineLib
             Line = new RectangleShape();
             ListOfEvents = new List<EventViewModel>();
             ListOfCategories = new List<Category>();
+            EditingEvent = null;
+            EventToDrawNote = null;
 
+            // Default Values
             LineThickness = 4;
             Zoom = 1.0f;
             ZoomSpeed = 10.0f;
             ZoomMinCap = 40;
             ZoomMaxCap = -132;
             ScrollSpeed = 5f;
-
             EventTextCharacterSize = 24;
             EventBgMargin = 5;
             MarkerCharacterSize = 15;
@@ -166,9 +164,7 @@ namespace TimelineLib
             IntervalLengthPx = 60;
             IntervalThresholdPx = 60;
             MarkerHeight = 14;
-
-            DisplayNoteDelayInSeconds = 1.0f;
-            EventToDrawNote = null;
+            DisplayNoteDelayInSeconds = 0.75f;
 
             PrimaryFont = new Font(Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName +
             "\\Fonts\\GeosansLight.ttf");
@@ -194,9 +190,10 @@ namespace TimelineLib
         public TimelineModel ConvertToSaveModel()
         {
             TimelineModel t = new TimelineModel();
+
             t.EventModels = new List<EventModel>();
 
-            foreach(EventViewModel e in ListOfEvents)
+            foreach(EventViewModel e in this.ListOfEvents)
             {
                 t.EventModels.Add(e.ConvertToSaveModel());
             }
@@ -211,7 +208,6 @@ namespace TimelineLib
 
         public void AddEvent(EventViewModel e)
         {
-            //e.Category = ListOfCategories[(int)e.CategoryID];
             e.Category = ListOfCategories.Find(x => x.ID == e.CategoryID);
 
             ListOfEvents.Add(e);
@@ -415,6 +411,11 @@ namespace TimelineLib
             text.Position = new Vector2f(20, 20);
             text.FillColor = Theme.TitleColor;
             window.Draw(text);
+
+            Text NoRefreshesText = new Text("Refresh Count: " + Debug_NoRefreshes.ToString(), SecondaryFont);
+            NoRefreshesText.Position = new Vector2f(20, 80);
+            NoRefreshesText.FillColor = Theme.TitleColor;
+            window.Draw(NoRefreshesText);
         }
 
         public void DrawEvents(RenderWindow window)
