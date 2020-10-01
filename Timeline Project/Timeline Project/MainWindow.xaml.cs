@@ -59,11 +59,11 @@ namespace Timeline_Project
             // Initialize a test category
             model.AddCategory(new Category()
             {
-                BackgroundColor = Color.Red,
-                BackgroundColorHover = Color.Red + new Color(40, 40, 40),
-                TextColor = model.Theme.TextColor,
+                BackgroundColor = new Color(139, 201, 201),
+                BackgroundColorHover = new Color(139, 201, 201) + new Color(40, 40, 40),
+                TextColor = Color.Black,
                 ID = 1,
-                Name = "Red Category",
+                Name = "Blue Category",
                 PriorityLevel = 1
             });
 
@@ -282,6 +282,8 @@ namespace Timeline_Project
                 model.EditingEventEndMonth = null;
                 model.EditingEventEndDay = null;
                 model.EditingEventNote = null;
+
+                EndMonthTextBox.IsEnabled = EndDayTextBox.IsEnabled = false;
             }
             // Edit Event Form (if a model is passed in)
             else
@@ -296,6 +298,10 @@ namespace Timeline_Project
                 model.EditingEventEndDay = eventViewModel.EndDay;
                 model.EditingEventNote = eventViewModel.Note;
                 model.ShowDeleteButton = true;
+
+                EndMonthTextBox.IsEnabled = 
+                    EndDayTextBox.IsEnabled = 
+                        eventViewModel.EndYear != null;
 
                 model.EditingEvent = eventViewModel;
             }
@@ -554,6 +560,12 @@ namespace Timeline_Project
         private void btnOpenFile_Click(object sender, RoutedEventArgs e)
         {
             OpenFile();
+        }
+
+        private void EndYearTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+            EndMonthTextBox.IsEnabled = true;
+            EndDayTextBox.IsEnabled = true;
         }
     }
 }

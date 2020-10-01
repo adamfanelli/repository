@@ -3,7 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:TimelineProject="clr-namespace:Timeline_Project"
         xmlns:local="clr-namespace:Timeline_Project"
         mc:Ignorable="d"
@@ -12,7 +11,6 @@
         MinHeight="600"
         MinWidth="800"
         WindowState="Maximized"
-        FontFamily="{DynamicResource MaterialDesignFont}"
         Title="Timeline Project" Height="800" Width="1200">
     
     <Window.Resources>
@@ -21,7 +19,7 @@
     
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="40"/>
+            <RowDefinition Height="20"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
@@ -75,9 +73,7 @@
 
             <Rectangle Grid.Row="0" Grid.ColumnSpan="2" Fill="WhiteSmoke"/>
 
-            <materialDesign:Card Grid.Row="0" Grid.ColumnSpan="2" >
-                <TextBlock Text="{Binding SideColumnHeader}" FontWeight="Bold" VerticalAlignment="Center" FontSize="14" HorizontalAlignment="Center"/>
-            </materialDesign:Card>
+            <TextBlock Grid.Row="0" Grid.ColumnSpan="2" Text="{Binding SideColumnHeader}" FontWeight="Bold" VerticalAlignment="Center" FontSize="14" HorizontalAlignment="Center"/>
 
 
             <Label Grid.Row="2" Grid.ColumnSpan="2" Content="Name" FontWeight="Bold"/>
@@ -87,7 +83,7 @@
             <TextBox Grid.Row="5" Width="100"  FontSize="15"  Name="StartYearTextBox" Text="{Binding EditingEventStartYear}" GotFocus="TextBox_SelectAllOnFocus"/>
             
             <Label Grid.Row="4" Grid.Column="1" Content="End Year" FontWeight="Bold"/>
-            <TextBox Grid.Row="5" Grid.Column="1" Width="100"  FontSize="15"  Name="EndStartYearTextBox" Text="{Binding EditingEventEndYear}" GotFocus="TextBox_SelectAllOnFocus"/>
+            <TextBox Grid.Row="5" Grid.Column="1" Width="100"  FontSize="15"  Name="EndYearTextBox" Text="{Binding EditingEventEndYear}" GotFocus="TextBox_SelectAllOnFocus" TextChanged="EndYearTextBox_TextChanged"/>
 
             <Label Grid.Row="6" Content="Month" FontWeight="Bold"/>
             <TextBox Grid.Row="7" Width="100"  FontSize="15"  Name="StartMonthTextBox" Text="{Binding EditingEventStartMonth}" GotFocus="TextBox_SelectAllOnFocus"/>
@@ -108,19 +104,11 @@
             <Label Grid.Row="12" Grid.ColumnSpan="2" Content="Note" FontWeight="Bold"/>
             <TextBox Grid.Row="13" Grid.ColumnSpan="2"  FontSize="12" TextWrapping="Wrap"  Name="NoteTextBox" Text="{Binding EditingEventNote}" />
 
+            <Button Foreground="White" Background="DodgerBlue"  Grid.Row="15" Content="Submit" Name="NewEventSubmitButton" IsDefault="true" Click="btnSubmitNewEvent_Click" Width="80" Height="30"/>
 
-            <!--Background for Hover-->
-            <Button Style="{StaticResource MaterialDesignFlatButton}" Background="CornflowerBlue"  Grid.Row="15" Width="80" Height="30" IsEnabled="False"/>
-            <Button Style="{StaticResource MaterialDesignFlatButton}" Foreground="White" Background="DodgerBlue"  Grid.Row="15" Content="Submit" Name="NewEventSubmitButton" IsDefault="true" Click="btnSubmitNewEvent_Click" Width="80" Height="30"/>
+            <Button Foreground="White" Background="Silver"  Grid.Row="15" Grid.Column="1" Content="Cancel" IsCancel="true" Click="btnCancelNewEvent_Click" Width="80" Height="30"/>
 
-
-            <!--Background for Hover-->
-            <Button Style="{StaticResource MaterialDesignFlatButton}" Background="LightGray"  Grid.Row="15" Grid.Column="1" IsEnabled="False" Width="80" Height="30"/>
-            <Button Style="{StaticResource MaterialDesignFlatButton}" Foreground="White" Background="Silver"  Grid.Row="15" Grid.Column="1" Content="Cancel" IsCancel="true" Click="btnCancelNewEvent_Click" Width="80" Height="30"/>
-
-            <!--Background for Hover-->
-            <Button Style="{StaticResource MaterialDesignFlatButton}" Background="LightSalmon" IsEnabled="False" Grid.Row="17" Grid.ColumnSpan="2" Click="btnDeleteEvent_Click" Width="180" Height="30" Visibility="{Binding Path=ShowDeleteButton, Converter={StaticResource Converter}}" />
-            <Button Style="{StaticResource MaterialDesignFlatButton}" Foreground="White" Background="Salmon" Visibility="{Binding Path=ShowDeleteButton, Converter={StaticResource Converter}}" 
+            <Button Foreground="White" Background="Salmon" Visibility="{Binding Path=ShowDeleteButton, Converter={StaticResource Converter}}" 
                     Grid.Row="17" Grid.ColumnSpan="2" Click="btnDeleteEvent_Click" Width="180" Height="30">
                 <Grid Grid.ColumnSpan="2">
                     <Grid.ColumnDefinitions>
@@ -128,8 +116,7 @@
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
                     
-                    <materialDesign:PackIcon Grid.Column="0" Kind="TrashCan" Foreground="White"/>
-                    <TextBlock Grid.Column="1" Text=" Delete"/>
+                    <TextBlock Grid.Column="1" Text="Delete"/>
                 </Grid>
             </Button>
 

@@ -94,7 +94,10 @@ namespace TimelineLib
         public int? EditingEventEndYear
         {
             get { return editingEventEndYear; }
-            set { editingEventEndYear = value; NotifyPropertyChanged(); }
+            set { 
+                editingEventEndYear = value;
+                EditingEventIsTimespan = value != null;
+                NotifyPropertyChanged(); }
         }
 
         private int? editingEventEndMonth;
@@ -116,6 +119,13 @@ namespace TimelineLib
         {
             get { return editingEventNote; }
             set { editingEventNote = value; NotifyPropertyChanged(); }
+        }
+
+        private bool editingEventIsTimespan;
+        public bool EditingEventIsTimespan
+        {
+            get { return editingEventIsTimespan; }
+            set { editingEventIsTimespan = value; NotifyPropertyChanged(); }
         }
 
         private string sideColumnHeader;
@@ -164,7 +174,7 @@ namespace TimelineLib
             IntervalLengthPx = 60;
             IntervalThresholdPx = 60;
             MarkerHeight = 14;
-            DisplayNoteDelayInSeconds = 0.75f;
+            DisplayNoteDelayInSeconds = 0.5f;
 
             PrimaryFont = new Font(Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName +
             "\\Fonts\\GeosansLight.ttf");
@@ -424,12 +434,8 @@ namespace TimelineLib
             List<float> PrevRightPosTop = new List<float>() { 0 };
             List<float> PrevRightPosBottom = new List<float>() { 0 };
 
-            // Items in these lists will be drawn at the end of each loop
-            List<Shape> ShapesToDraw = new List<Shape>();
-            List<Text> TextToDraw = new List<Text>();
-            List<VertexArray> VertexArraysToDraw = new List<VertexArray>();
-
-
+            // Items in this lists will be drawn at the end of each loop
+            List<Drawable> ObjectsToDraw = new List<Drawable>();
 
             // Initialize some variables
             float eventHeight = 40;
@@ -439,6 +445,14 @@ namespace TimelineLib
 
             foreach (EventViewModel e in ListOfEvents)
             {
+                Color textColor =
+                    e.Category == null ? Theme.TextColor : e.Category.TextColor;
+
+                // Change color of background on hover or while editing
+                Color bgColor =
+                    (e.IsMouseOver(window) || e == EditingEvent)
+                    ? e.Category == null ? Theme.EventHoverColor : e.Category.BackgroundColorHover
+                    : e.Category == null ? Theme.EventBackgroundColor : e.Category.BackgroundColor;
 
                 // If the event has an EndYear, draw a timespan. Otherwise, draw an event.
                 if (e.EndYear != null)
@@ -474,12 +488,6 @@ namespace TimelineLib
                     e.ScreenPos = new Vector2f((float)leftX, LineTopY + LineThickness + (level * EventFromLineHeight));
                     e.Size = new Vector2f ((float)(rightX - leftX), eventHeight / 2);
 
-                    // Change color of background on hover or while editing
-                    Color bgColor =
-                        (e.IsMouseOver(window) || e == EditingEvent)
-                        ? e.Category == null ? Theme.EventHoverColor : e.Category.BackgroundColorHover
-                        : e.Category == null ? Theme.EventBackgroundColor : e.Category.BackgroundColor;
-
                     // Background Rectangle
                     RectangleShape textBg = new RectangleShape()
                     {
@@ -487,14 +495,16 @@ namespace TimelineLib
                         Size = e.Size,
                         FillColor = bgColor
                     };
-                    ShapesToDraw.Add(textBg);
+                    ObjectsToDraw.Add(textBg);
 
                     // Create Text
                     Text text = new Text(e.Name, PrimaryFont);
                     text.CharacterSize = EventTextCharacterSize - 5;
-                    text.FillColor = Theme.TextColor;
-                    text.Position = new Vector2f(e.ScreenPos.X + 10, e.ScreenPos.Y - 20);
-                    TextToDraw.Add(text);
+                    text.FillColor = textColor;
+                    text.Position = new Vector2f(
+                        e.ScreenPos.X + 10, 
+                        e.ScreenPos.Y - 20);
+                    ObjectsToDraw.Add(text);
 
                     // Set PrevX
                     float prevx = e.ScreenPos.X + e.Size.X;
@@ -517,7 +527,7 @@ namespace TimelineLib
                     // Create Text
                     Text text = new Text(e.Name, PrimaryFont);
                     text.CharacterSize = EventTextCharacterSize;
-                    text.FillColor = Theme.TextColor;
+                    text.FillColor = textColor;
 
                     float eventLeftPos = (float)(e.X - text.GetLocalBounds().Width / 2 - EventBgMargin - circleBorderRadius);
                     float eventRightPos = (float)(e.X + text.GetLocalBounds().Width / 2 + EventBgMargin + circleBorderRadius);
@@ -543,12 +553,6 @@ namespace TimelineLib
                     // Set Text Position
                     text.Position = new Vector2f((float)e.X - text.GetLocalBounds().Width / 2, e.ScreenPos.Y + EventBgMargin);
 
-                    // Change color of background on hover or while editing
-                    Color bgColor =
-                        (e.IsMouseOver(window) || e == EditingEvent)
-                        ? e.Category == null ? Theme.EventHoverColor : e.Category.BackgroundColorHover
-                        : e.Category == null ? Theme.EventBackgroundColor : e.Category.BackgroundColor;
-
                     // Background Rectangle
                     RectangleShape textBg = new RectangleShape()
                     {
@@ -556,7 +560,7 @@ namespace TimelineLib
                         Size = new Vector2f(text.GetLocalBounds().Width + EventBgMargin * 2, eventHeight),
                         FillColor = bgColor
                     };
-                    ShapesToDraw.Add(textBg);
+                    ObjectsToDraw.Add(textBg);
 
                     // Background Circular Borders
                     CircleShape lCircle = new CircleShape()
@@ -565,7 +569,7 @@ namespace TimelineLib
                         Position = new Vector2f(eventLeftPos, e.ScreenPos.Y),
                         FillColor = bgColor
                     };
-                    ShapesToDraw.Add(lCircle);
+                    ObjectsToDraw.Add(lCircle);
 
                     CircleShape rCircle = new CircleShape()
                     {
@@ -573,7 +577,7 @@ namespace TimelineLib
                         Position = new Vector2f(eventRightPos - circleBorderRadius * 2, e.ScreenPos.Y),
                         FillColor = bgColor
                     };
-                    ShapesToDraw.Add(rCircle);
+                    ObjectsToDraw.Add(rCircle);
 
                     // Set PrevX
                     float prevx = e.ScreenPos.X + e.Size.X;
@@ -589,7 +593,7 @@ namespace TimelineLib
                     bgTriangle[0] = new Vertex(new Vector2f(text.Position.X + text.GetLocalBounds().Width / 2 - 8, textBg.Position.Y + textBg.Size.Y), bgColor);
                     bgTriangle[1] = new Vertex(new Vector2f(text.Position.X + text.GetLocalBounds().Width / 2 + 8, textBg.Position.Y + textBg.Size.Y), bgColor);
                     bgTriangle[2] = new Vertex(new Vector2f(text.Position.X + text.GetLocalBounds().Width / 2, textBg.Position.Y + textBg.Size.Y + 8), bgColor);
-                    VertexArraysToDraw.Add(bgTriangle);
+                    ObjectsToDraw.Add(bgTriangle);
 
                     // Connector Triangle
                     VertexArray connectorTriangle = new VertexArray(PrimitiveType.Triangles, 3);
@@ -620,32 +624,32 @@ namespace TimelineLib
 
                         window.Draw(dash);
                     }
-                    VertexArraysToDraw.Add(connectorTriangle);
-                    TextToDraw.Add(text);
+                    ObjectsToDraw.Add(connectorTriangle);
+                    ObjectsToDraw.Add(text);
                 }
             }
 
-            foreach (Shape shape in ShapesToDraw)
-                window.Draw(shape);
-            
-            foreach(VertexArray vertexArray in VertexArraysToDraw)
-                window.Draw(vertexArray);
-            
-            foreach(Text text in TextToDraw)
-                window.Draw(text);
+            foreach (Drawable drawable in ObjectsToDraw)
+                window.Draw(drawable);
 
             // Draw Note
             if(EventToDrawNote != null)
             {
                 Text noteText = new Text(EventToDrawNote.Note, PrimaryFont);
                 noteText.CharacterSize = EventTextCharacterSize;
-                noteText.FillColor = Theme.TextColor;
-                noteText.Position = new Vector2f((float)EventToDrawNote.X - noteText.GetLocalBounds().Width / 2, EventToDrawNote.ScreenPos.Y - 60);
 
                 RectangleShape noteBg = new RectangleShape();
-                noteBg.Position = noteText.Position - new Vector2f(EventBgMargin, EventBgMargin);
+                noteBg.Position = new Vector2f(
+                    EventToDrawNote.EndYear != null
+                        ? EventToDrawNote.ScreenPos.X + circleBorderRadius
+                        : (float)EventToDrawNote.X - noteText.GetLocalBounds().Width/2 - EventBgMargin,
+
+                    EventToDrawNote.ScreenPos.Y - 65 );
                 noteBg.Size = new Vector2f(noteText.GetLocalBounds().Width + EventBgMargin * 2, noteText.GetLocalBounds().Height + EventBgMargin * 4);
                 noteBg.FillColor = Theme.EventNoteBackgroundColor;
+
+                noteText.FillColor = Theme.TextColor;
+                noteText.Position = noteBg.Position + new Vector2f(EventBgMargin, EventBgMargin);
 
                 CircleShape lCircle = new CircleShape()
                 {
